@@ -12,7 +12,7 @@ Notice the small *"Copy to Clipboard"* button on the right hand side of each cod
 
 ## Activating the correct conda software environment
 
-[Anaconda](www.anaconda.org) is a software management tool that can be used for creating specific environments where bioinformatics software can be installed in Linux, as it manages all the dependencies of different softwares for you. To run the steps outlined in this manual, be sure to first activate the proper conda environment. 
+[Anaconda](www.anaconda.org) is a software management tool that can be used for creating specific environments where bioinformatics software can be installed in Linux, as it manages all the dependencies of different softwares for you. To run the steps outlined in this manual, be sure to first activate the proper conda environment.
 
 Activate a conda environment can be done by copying and executing the following code:
 
@@ -20,7 +20,7 @@ Activate a conda environment can be done by copying and executing the following 
 conda activate {environment}
 ```
 
--   `{environment}` is the name of your chosen conda environment. 
+-   `{environment}` is the name of your chosen conda environment.
 
 ::: callout-note
 We are now ready to start executing the code to perform quality control of our raw Nanopore sequencing data in the next chapter.

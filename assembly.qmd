@@ -29,7 +29,7 @@ fi
 
 Next we will combine all contigs into a single fasta file so we can perform taxonomic annotation across all samples in one go. Before performing this step, we will add sample names to the beginning of each contig name. This will allow us to split annotation files back into individual annotation files for each sample.
 
-**Renaming contigs:**
+## Renaming contigs:
 
 ``` bash
 seqkit replace -p "^" -r "{sample}_" {input} > {output}
@@ -39,7 +39,7 @@ seqkit replace -p "^" -r "{sample}_" {input} > {output}
 -   `{input}` is your contig file from **step 3.1**
 -   `{output}` is fasta file with the renamed contig
 
-**Aggregating contigs:**
+## Aggregating contigs:
 
 ``` bash
 cat {input} > {output}
