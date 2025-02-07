@@ -249,7 +249,7 @@ Tip
 <p>If you get a “file not found” error after changing your directory (<code>cd</code>) you may need to write the complete path of your sample_config.tsv file e.g <code>mv /home/username/Documents/sample_config.tsv results</code></p>
 </div>
 </div>
-<p>After preparing the results directory we have to make sure that we have activated the <code>viroscience_env</code> conda environment and check if the command line has <code>(viroscience_env)</code> in front.</p>
+<p>After preparing the results directory we have to make sure that we have activated the appropriate conda environment and check if the command line has <code>(your_environment_name)</code> in front.</p>
 <p>Next, run the <code>ls</code> command to list the files in the current directory and check if the <code>InsertCorrectName.smk</code> file is present. This is the “recipe” for the workflow, describing all the steps we have done by hand. (you can open the <code>.smk</code> file with a text editor and have a look).</p>
 </section>
 <section id="running-the-workflow" class="level2" data-number="6.2">
@@ -262,7 +262,10 @@ Tip
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>--configfile sample_config={config} <span class="dt">\</span></span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>--cores {threads}</span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="ex">--dryrun</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>. - <code>{ourdir}</code> is the directly we created. - <code>{config}</code> is the tabular config file.</p>
+<ul>
+<li><code>{ourdir}</code> is the directly we created.</li>
+<li><code>{config}</code> is the tabular config file.</li>
+</ul>
 <p>If no errors appear, then remove the <code>--dryrun</code> argument and run it again to fully execute the workflow.</p>
 
 

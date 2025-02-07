@@ -198,6 +198,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#metaspades" id="toc-metaspades" class="nav-link active" data-scroll-target="#metaspades"><span class="header-section-number">3.1</span> metaSPades</a></li>
+  <li><a href="#renaming-contigs" id="toc-renaming-contigs" class="nav-link" data-scroll-target="#renaming-contigs"><span class="header-section-number">3.2</span> Renaming contigs:</a></li>
+  <li><a href="#aggregating-contigs" id="toc-aggregating-contigs" class="nav-link" data-scroll-target="#aggregating-contigs"><span class="header-section-number">3.3</span> Aggregating contigs:</a></li>
   </ul>
 </nav>
     </div>
@@ -248,14 +250,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>{log}</code> specifies the log directory.</li>
 </ul>
 <p>Next we will combine all contigs into a single fasta file so we can perform taxonomic annotation across all samples in one go. Before performing this step, we will add sample names to the beginning of each contig name. This will allow us to split annotation files back into individual annotation files for each sample.</p>
-<p><strong>Renaming contigs:</strong></p>
+</section>
+<section id="renaming-contigs" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="renaming-contigs"><span class="header-section-number">3.2</span> Renaming contigs:</h2>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">seqkit</span> replace <span class="at">-p</span> <span class="st">"^"</span> <span class="at">-r</span> <span class="st">"{sample}_"</span> {input} <span class="op">&gt;</span> {output}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
 <li><code>{sample}</code> is the sample name that will be placed in front of the contig name</li>
 <li><code>{input}</code> is your contig file from <strong>step 3.1</strong></li>
 <li><code>{output}</code> is fasta file with the renamed contig</li>
 </ul>
-<p><strong>Aggregating contigs:</strong></p>
+</section>
+<section id="aggregating-contigs" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="aggregating-contigs"><span class="header-section-number">3.3</span> Aggregating contigs:</h2>
 <div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> {input} <span class="op">&gt;</span> {output}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
 <li><code>{input}</code> are your renamed contig files from <strong>step 3.2</strong></li>

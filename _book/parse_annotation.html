@@ -230,10 +230,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>We will conclude the pipeline with various steps which will create valuable data files for further downstream analysis.</p>
 <section id="extract-viral-annotations" class="level2" data-number="5.1">
 <h2 data-number="5.1" class="anchored" data-anchor-id="extract-viral-annotations"><span class="header-section-number">5.1</span> Extract viral annotations</h2>
-<p>A basic grep command can be used to extract contigs that have been annotated as viral from the annotation file in step 4.3.</p>
+<p>A basic grep command can be used to extract contigs that have been annotated as viral from the annotation file in <strong>step 4.3</strong>.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">"Viruses$"</span> {input.annotated} <span class="op">&gt;</span> {output.viral} <span class="kw">||</span> <span class="fu">touch</span> {output.viral}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
-<li><code>{input.annotated}</code> is the annotation file from the previous step.</li>
+<li><code>{input.annotated}</code> is the annotation file from <strong>step 4.3</strong>.</li>
 <li><code>{output.viral}</code> contains all of your viral contigs.</li>
 </ul>
 </section>
@@ -241,14 +241,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 data-number="5.2" class="anchored" data-anchor-id="mapping-reads-to-contigs"><span class="header-section-number">5.2</span> Mapping reads to contigs</h2>
 <p>We can map the quality-filtered and host-filtered reads back to the assembled contigs to quantify the abundance of different contigs in each sample. We will create a mapping file for paired reads (R1 and R2) and singletons (S).</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">bwa</span> index {input.contigs}</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">bwa</span> mem <span class="at">-Y</span> <span class="at">-t</span> {threads} {input.contigs} {input.R1} {input.R2} <span class="kw">|</span> <span class="ex">samtools</span> sort <span class="at">-</span> <span class="op">&gt;</span> result/{wildcards.sample}/mapping/tmp_paired.bam</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">bwa</span> mem <span class="at">-Y</span> <span class="at">-t</span> {threads} {input.contigs} {input.S} <span class="kw">|</span> <span class="ex">samtools</span> sort <span class="at">-</span> <span class="op">&gt;</span> result/{wildcards.sample}/mapping/tmp_singlets.bam</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ex">samtools</span> merge {output} result/{wildcards.sample}/mapping/tmp_paired.bam result/{wildcards.sample}/mapping/tmp_singlets.bam</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> result/{wildcards.sample}/mapping/tmp_paired.bam result/{wildcards.sample}/mapping/tmp_singlets.bam</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">bwa</span> mem <span class="at">-Y</span> <span class="at">-t</span> {threads} {input.contigs} {input.R1} {input.R2} <span class="kw">|</span> <span class="ex">samtools</span> sort <span class="at">-</span> <span class="op">&gt;</span> result/{sample}/mapping/tmp_paired.bam</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">bwa</span> mem <span class="at">-Y</span> <span class="at">-t</span> {threads} {input.contigs} {input.S} <span class="kw">|</span> <span class="ex">samtools</span> sort <span class="at">-</span> <span class="op">&gt;</span> result/{sample}/mapping/tmp_singlets.bam</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ex">samtools</span> merge {output} result/{sample}/mapping/tmp_paired.bam result/{wildcards.sample}/mapping/tmp_singlets.bam</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> result/{sample}/mapping/tmp_paired.bam result/{sample}/mapping/tmp_singlets.bam</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
 <li><code>{sample}</code> is the name of your sample.</li>
-<li><code>{input.contigs}</code> contains the assembled contigs.</li>
-<li><code>{input.R1}</code>, <code>{input.R2}</code> and <code>{input.S}</code> are the quality controlled and host-filtered reads.</li>
+<li><code>{input.contigs}</code> contains the assembled contigs from <strong>step 3.1</strong>.</li>
+<li><code>{input.R1}</code>, <code>{input.R2}</code> and <code>{input.S}</code> are the quality controlled and host-filtered reads from <strong>step 2.4</strong>.</li>
 <li><code>{output}</code> is a .bam mapping file</li>
 </ul>
 </section>
@@ -269,8 +269,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> result/{sample}/mapping/tmp.bed</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
-<li><code>{input.annotated}</code>, <code>{input.unannotated}</code> and <code>{input.viral}</code> are the .tsv annotation files from the previous steps.</li>
-<li><code>{input.mapped}</code> the combined .bam file from the previous step.</li>
+<li><code>{input.annotated}</code>, <code>{input.unannotated}</code> and <code>{input.viral}</code> are the .tsv annotation files <strong>step 4.3 and 5.1</strong>.</li>
+<li><code>{input.mapped}</code> the combined .bam file from <strong>step 5.2</strong>.</li>
 <li><code>{output.annotated}</code>, <code>{output.unannotated}</code> and <code>{output.viral}</code> are .bam files for each annotation input.</li>
 <li><code>{sample}</code> is the name of your sample.</li>
 </ul>
@@ -282,7 +282,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">samtools</span> view <span class="at">-bF2052</span> {input.unannotated} <span class="kw">|</span> <span class="ex">seqkit</span> bam <span class="at">-Qc</span> <span class="at">-</span> <span class="kw">|</span> <span class="fu">awk</span> <span class="st">'$2 != 0 {{print}}'</span> <span class="op">&gt;</span> {output.unannotated}</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">samtools</span> view <span class="at">-bF2052</span> {input.viral} <span class="kw">|</span> <span class="ex">seqkit</span> bam <span class="at">-Qc</span> <span class="at">-</span> <span class="kw">|</span> <span class="fu">awk</span> <span class="st">'$2 != 0 {{print}}'</span> <span class="op">&gt;</span> {output.viral}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
-<li><code>{input.annotated}</code>, <code>{input.unannotated}</code> and <code>{input.viral}</code> are the .bam files from the previous step.</li>
+<li><code>{input.annotated}</code>, <code>{input.unannotated}</code> and <code>{input.viral}</code> are the .bam files from <strong>step 5.3</strong>.</li>
 <li><code>{output.annotated}</code>, <code>{output.unannotated}</code> and <code>{output.viral}</code> are .tsv files containing the read counts for each .bam file</li>
 </ul>
 </section>
@@ -293,8 +293,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">seqkit</span> grep <span class="at">-f</span> <span class="op">&lt;(</span><span class="fu">cut</span> <span class="at">-f1</span> {input.unannotated}<span class="op">)</span> {input.contigs} <span class="op">&gt;</span> {output.unannotated}</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="ex">seqkit</span> grep <span class="at">-f</span> <span class="op">&lt;(</span><span class="fu">cut</span> <span class="at">-f1</span> {input.viral}<span class="op">)</span> {input.contigs} <span class="op">&gt;</span> {output.viral}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
-<li><code>{input.annotated}</code>, <code>{input.unannotated}</code> and <code>{input.viral}</code> are .tsv annotation files from step [XX].</li>
-<li><code>{input.contigs}</code> is the .fasta file containing all contigs for a sample.</li>
+<li><code>{input.annotated}</code>, <code>{input.unannotated}</code> and <code>{input.viral}</code> are .tsv annotation files from <strong>steps 4.3 and 5.1</strong>.</li>
+<li><code>{input.contigs}</code> is the .fasta file containing all contigs for a sample from <strong>step 3.1</strong>.</li>
 <li><code>{output.annotated}</code>, <code>{output.unannotated}</code> and <code>{output.viral}</code> are .fasta files containing the contigs.</li>
 </ul>
 <div class="callout callout-style-default callout-note callout-titled">

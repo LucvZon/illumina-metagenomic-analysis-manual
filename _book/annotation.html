@@ -276,8 +276,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="parsing-diamond-output" class="level2" data-number="4.3">
 <h2 data-number="4.3" class="anchored" data-anchor-id="parsing-diamond-output"><span class="header-section-number">4.3</span> Parsing diamond output</h2>
-<p>To simplify downstream analysis we will parse the DIAMOND output files with a custom Python script called <strong>post_process_diamond.py</strong>. This script will append additional taxonomic information to the annotated contigs.</p>
-<p>to create two separate files: one containing annotated contigs with XYZ and one containing unannotated contigs.</p>
+<p>Now we will process the DIAMOND output files with a custom Python script called <strong>post_process_diamond.py</strong>. This script will further enrich taxonomic information for each contig based on the DIAMOND alignment results. If a contig has multiple matches in the database, it will select the best hit based on a combined score of bitscore and length. Lastly, it separates the contigs into two lists: those that were successfully annotated and unannotated.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>        <span class="ex">python</span> /mnt/viro0002/workgroups_projects/Bioinformatics/scripts/post_process_diamond.py <span class="dt">\</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">-i</span> {input.annotation} <span class="dt">\</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">-c</span> {input.contigs} <span class="dt">\</span></span>
