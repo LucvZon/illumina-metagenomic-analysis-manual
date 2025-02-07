@@ -14,6 +14,7 @@ book:
     - annotation.qmd
     - parse_annotation.qmd
     - illumina_hpc.qmd
+  search: TRUE
 
 toc: true
 number-sections: true
