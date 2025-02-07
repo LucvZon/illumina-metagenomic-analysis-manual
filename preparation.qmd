@@ -1,0 +1,27 @@
+# Preparation
+
+::: callout-warning
+# Important!
+
+In the following sections whenever a **"parameter"** in brackets `{}` is shown, the intention is to fill in your own filename or value. Each parameter will be explained in the section in detail.
+:::
+
+::: callout-tip
+Notice the small *"Copy to Clipboard"* button on the right hand side of each code chunk, this can be used to copy the code.
+:::
+
+## Activating the correct conda software environment
+
+[Anaconda](www.anaconda.org) is a software management tool that can be used for creating specific environments where bioinformatics software can be installed in Linux, as it manages all the dependencies of different softwares for you. To run the steps outlined in this manual, be sure to first activate the proper conda environment. 
+
+Activate a conda environment can be done by copying and executing the following code:
+
+``` bash
+conda activate {environment}
+```
+
+-   `{environment}` is the name of your chosen conda environment. 
+
+::: callout-note
+We are now ready to start executing the code to perform quality control of our raw Nanopore sequencing data in the next chapter.
+:::

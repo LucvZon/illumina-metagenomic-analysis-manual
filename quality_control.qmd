@@ -1,0 +1,103 @@
+# Quality control
+
+::: callout-warning
+# Important!
+
+In the next steps we are going to copy-paste code, adjust it to our needs, and execute it on the command-line.
+
+**Please open a plain text editor to paste the code from the next steps, to keep track of your progress!**
+:::
+
+For simplicity's sake, we will go through the steps for an individual sample. It is recommended to follow a basic file structure like the following below:  
+
+```         
+my_project/
+├── raw_data/          # Contains the raw, gzipped FASTQ files
+│   ├── sample1_R1_001.fastq.gz
+│   ├── sample1_R2_001.fastq.gz
+│   ├── sample2_R1_001.fastq.gz
+│   └── sample2_R2_001.fastq.gz
+└── results/           # This is where the output files will be stored
+└── log/               # This is where log files will be stored
+```
+
+## Decompressing FASTQ
+
+The first step is to decompress the raw FASTQ files. FASTQ files are often compressed using gzip to save disk space. We'll use the zcat command to decompress them.
+
+**Modify and run:**
+
+``` bash
+zcat {input.folder}/{sample}_R1_001.fastq.gz > {output.folder}/{sample}_R1.fastq
+zcat {input.folder}/{sample}_R2_001.fastq.gz > {output.folder}/{sample}_R2.fastq
+```
+
+-   `{input.folder}` is where your raw .fastq.gz data is stored. 
+-   `{sample}` is the name of your sample.
+-   `{output.folder}` is where your decompressed .fastq files will be stored. 
+
+## Deduplicate reads
+
+This step removes duplicate reads from the uncompressed FASTQ files. Duplicate reads can arise during PCR amplification or sequencing and can skew downstream analyses. We'll use the cd-hit-dup program to identify and remove these duplicates.
+
+After cd-hit-dup command is finished, we'll remove the .clstr file that cd-hit-dup creates. This file contains information about the clusters of duplicate reads, but it's not needed for downstream analysis, so we can safely remove it to save disk space.
+
+``` bash
+cd-hit-dup -u 50 -i {input.R1} -i2 {input.R2} -o {output.R1} -o2 {output.R2} > {logs}/{sample}_cd-hit.log 2>&1
+
+rm {output.dir}/*.clstr
+```
+
+-   `{input.R1}` and `{input.R2}` are the decompressed R1 and R2 reads from **step 2.1**.
+-   `{output.R1}` and `{output.R2}` are your deduplicated .fastq reads. Think of where you want to store your results, something like `results/dedup/` will be sufficient, so output.R1 turns into `result/dedup/SampleName_R1.fastq`, etc.
+-   `{output.dir}` This should be pointed to wherever your deduplicated reads are stored. 
+
+## Running fastp quality control software
+
+The [fastp](https://github.com/OpenGene/fastp) software is a very fast multipurpose quality control software to perform quality and sequence adapter trimming for Illumina short-read and Nanopore long-read data.
+
+Because we are processing Illumina short-read data,
+
+``` bash
+        fastp -i {input.R1} -I {input.R2} \
+        -o {output.R1} -O {output.R2} \
+        --unpaired1 {output.S} --unpaired2 {output.S} --failed_out {output.failed} \
+        --length_required 50 \
+        --low_complexity_filter \
+        --cut_right \
+        --cut_right_window_size 5 \
+        --cut_right_mean_quality 25 \
+        --thread {threads} \
+        -j result/{sample}/dedup_qc/qc_report.json -h result/{sample}/dedup_qc/qc_report.html > {log} 2>&1
+```
+
+-   `{input.R1}` and `{input.R2}` are the reads belonging to the deduplicated sample **step 2.2**.
+-   `{output.R1}` and `{output.R2}` are the the quality controlled .fastq filenames.
+-   `{output.S}` --unpaired1 and --unpaired2 tells fastp to write unpaired reads to a .fastq file. In our case, we write unpaired reads (whether they originated from the R1 or R2 file) to the same file, output.S.
+-   `{output.failed}` .fastq file that stores reads (either merged or unmerged) which failed the quality filters
+-   `{sample}` is the name of your sample.
+-   `{log}` is the directory for log files.
+
+::: callout-note
+`{threads}` is a recurring setting for the number of CPUs to use for the processing. On a laptop this will be less (e.g. 8), on an HPC you may be able to use 64 or more CPUs for processing. However, how much performance increase you get depends on the software.
+:::
+
+## Host filtering
+
+This step removes reads that map to a host genome (e.g., human). This is important if you're studying metagenomes from a host-associated environment (e.g., gut microbiome, stool).
+
+``` bash
+bwa mem -aY -t {threads} {params.reference} {input.R1} {input.R2} | \
+samtools fastq -f 4 -s /dev/null -1 {output.R1} -2 {output.R2} -
+bwa mem -aY -t {threads} {params.reference}  {input.S} | \
+samtools fastq -f 4 - > {output.S}
+```
+
+-   `{input.R1}` and `{input.R2}` are QC-filtered FASTQ files from **step 2.3**.
+-   `{output.R1}` and `{output.R2}` are FASTQ files (R1, R2) containing reads that did not map to the host genome.
+-   `{input.S}` are singleton reads from the previous step (output.S).
+-   `{params.reference}` is a reference genome sequence.
+
+::: callout-note
+We now have our quality controlled sequence reads which we can use to create an assembly in the next chapter.
+:::

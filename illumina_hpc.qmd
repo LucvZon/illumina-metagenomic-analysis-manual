@@ -1,0 +1,60 @@
+# Automating data analysis
+
+## Preparing to run the workflow.
+
+We can make use of a tool called [Snakemake](https://snakemake.readthedocs.io/en/stable/) to automate the previous steps into a single pipeline. To set this up, you must create a tabular config file, which contains ...
+
+The tabular config file has the following structure:
+
+\[insert tabular example file\]
+
+Next, we need to create a place for your results to be stored. First check your current directory with the `pwd` command:
+
+``` bash
+pwd
+```
+
+Change your current directory using `cd` if needed:
+
+``` bash
+cd /{folder1}/{folder2}
+```
+
+Then create the new directory using the `mkdir` command:
+
+``` bash
+mkdir results
+```
+
+This creates a new directory at the current location. Move the `sample_config.tsv` file to the results directory using the `mv` (move) command:
+
+``` bash
+mv sample_config.tsv results
+```
+
+::: callout-tip
+If you get a "file not found" error after changing your directory (`cd`) you may need to write the complete path of your sample_config.tsv file e.g `mv /home/username/Documents/sample_config.tsv results`
+:::
+
+After preparing the results directory we have to make sure that we have activated the appropriate conda environment and check if the command line has `(your_environment_name)` in front.
+
+Next, run the `ls` command to list the files in the current directory and check if the `InsertCorrectName.smk` file is present. This is the "recipe" for the workflow, describing all the steps we have done by hand. (you can open the `.smk` file with a text editor and have a look).
+
+## Running the workflow
+
+After setting everything up, we can redo the analysis for all samples in a single step. First we will test out a dry run to see if any errors appear. A dry run will not execute any of the commands but will instead display what would be done. This will help identify any errors in the Snakemake or config file.
+
+``` bash
+snakemake \
+--snakefile \
+Snakefile.smk \
+--directory {ourdir} \
+--configfile sample_config={config} \
+--cores {threads}
+--dryrun
+```
+
+- `{ourdir}` is the directly we created. 
+- `{config}` is the tabular config file.
+
+If no errors appear, then remove the `--dryrun` argument and run it again to fully execute the workflow.

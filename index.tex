@@ -1,0 +1,396 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+  letterpaper,
+  DIV=11,
+  numbers=noendperiod]{scrreprt}
+
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else  
+    % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\setcounter{secnumdepth}{3}
+% Make \paragraph and \subparagraph free-standing
+\makeatletter
+\ifx\paragraph\undefined\else
+  \let\oldparagraph\paragraph
+  \renewcommand{\paragraph}{
+    \@ifstar
+      \xxxParagraphStar
+      \xxxParagraphNoStar
+  }
+  \newcommand{\xxxParagraphStar}[1]{\oldparagraph*{#1}\mbox{}}
+  \newcommand{\xxxParagraphNoStar}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+  \let\oldsubparagraph\subparagraph
+  \renewcommand{\subparagraph}{
+    \@ifstar
+      \xxxSubParagraphStar
+      \xxxSubParagraphNoStar
+  }
+  \newcommand{\xxxSubParagraphStar}[1]{\oldsubparagraph*{#1}\mbox{}}
+  \newcommand{\xxxSubParagraphNoStar}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+\makeatother
+
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{241,243,245}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.40,0.45,0.13}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\BuiltInTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\ExtensionTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.28,0.35,0.67}{#1}}
+\newcommand{\ImportTok}[1]{\textcolor[rgb]{0.00,0.46,0.62}{#1}}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.07,0.07,0.07}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+
+\KOMAoption{captions}{tableheading}
+\makeatletter
+\@ifpackageloaded{tcolorbox}{}{\usepackage[skins,breakable]{tcolorbox}}
+\@ifpackageloaded{fontawesome5}{}{\usepackage{fontawesome5}}
+\definecolor{quarto-callout-color}{HTML}{909090}
+\definecolor{quarto-callout-note-color}{HTML}{0758E5}
+\definecolor{quarto-callout-important-color}{HTML}{CC1914}
+\definecolor{quarto-callout-warning-color}{HTML}{EB9113}
+\definecolor{quarto-callout-tip-color}{HTML}{00A047}
+\definecolor{quarto-callout-caution-color}{HTML}{FC5300}
+\definecolor{quarto-callout-color-frame}{HTML}{acacac}
+\definecolor{quarto-callout-note-color-frame}{HTML}{4582ec}
+\definecolor{quarto-callout-important-color-frame}{HTML}{d9534f}
+\definecolor{quarto-callout-warning-color-frame}{HTML}{f0ad4e}
+\definecolor{quarto-callout-tip-color-frame}{HTML}{02b875}
+\definecolor{quarto-callout-caution-color-frame}{HTML}{fd7e14}
+\makeatother
+\makeatletter
+\@ifpackageloaded{bookmark}{}{\usepackage{bookmark}}
+\makeatother
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\AtBeginDocument{%
+\ifdefined\contentsname
+  \renewcommand*\contentsname{Table of contents}
+\else
+  \newcommand\contentsname{Table of contents}
+\fi
+\ifdefined\listfigurename
+  \renewcommand*\listfigurename{List of Figures}
+\else
+  \newcommand\listfigurename{List of Figures}
+\fi
+\ifdefined\listtablename
+  \renewcommand*\listtablename{List of Tables}
+\else
+  \newcommand\listtablename{List of Tables}
+\fi
+\ifdefined\figurename
+  \renewcommand*\figurename{Figure}
+\else
+  \newcommand\figurename{Figure}
+\fi
+\ifdefined\tablename
+  \renewcommand*\tablename{Table}
+\else
+  \newcommand\tablename{Table}
+\fi
+}
+\@ifpackageloaded{float}{}{\usepackage{float}}
+\floatstyle{ruled}
+\@ifundefined{c@chapter}{\newfloat{codelisting}{h}{lop}}{\newfloat{codelisting}{h}{lop}[chapter]}
+\floatname{codelisting}{Listing}
+\newcommand*\listoflistings{\listof{codelisting}{List of Listings}}
+\makeatother
+\makeatletter
+\makeatother
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
+\makeatother
+
+\usepackage{bookmark}
+
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdftitle={Illumina metagenomic data analysis},
+  pdfauthor={Luc van Zon},
+  colorlinks=true,
+  linkcolor={blue},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={Blue},
+  pdfcreator={LaTeX via pandoc}}
+
+
+\title{Illumina metagenomic data analysis}
+\author{Luc van Zon}
+\date{2025-02-05}
+
+\begin{document}
+\maketitle
+
+\renewcommand*\contentsname{Table of contents}
+{
+\hypersetup{linkcolor=}
+\setcounter{tocdepth}{2}
+\tableofcontents
+}
+
+\bookmarksetup{startatroot}
+
+\chapter*{Introduction}\label{introduction}
+\addcontentsline{toc}{chapter}{Introduction}
+
+\markboth{Introduction}{Introduction}
+
+Welcome to the Illumina metagenomic data analysis manual. This manual
+will outline a step by step the process for metagenomic analysis. At the
+end we will show how to automate all of these steps with snakemake.
+
+\bookmarksetup{startatroot}
+
+\chapter{Preparation}\label{preparation}
+
+\begin{tcolorbox}[enhanced jigsaw, coltitle=black, colframe=quarto-callout-warning-color-frame, leftrule=.75mm, opacityback=0, colbacktitle=quarto-callout-warning-color!10!white, left=2mm, bottomtitle=1mm, toptitle=1mm, opacitybacktitle=0.6, rightrule=.15mm, colback=white, toprule=.15mm, breakable, arc=.35mm, bottomrule=.15mm, titlerule=0mm, title=\textcolor{quarto-callout-warning-color}{\faExclamationTriangle}\hspace{0.5em}{Important!}]
+
+In the following sections whenever a \textbf{``parameter''} in brackets
+\texttt{\{\}} is shown, the intention is to fill in your own filename or
+value. Each parameter will be explained in the section in detail.
+
+\end{tcolorbox}
+
+\begin{tcolorbox}[enhanced jigsaw, coltitle=black, colframe=quarto-callout-tip-color-frame, leftrule=.75mm, opacityback=0, colbacktitle=quarto-callout-tip-color!10!white, left=2mm, bottomtitle=1mm, toptitle=1mm, opacitybacktitle=0.6, rightrule=.15mm, colback=white, toprule=.15mm, breakable, arc=.35mm, bottomrule=.15mm, titlerule=0mm, title=\textcolor{quarto-callout-tip-color}{\faLightbulb}\hspace{0.5em}{Tip}]
+
+Notice the small \emph{``Copy to Clipboard''} button on the right hand
+side of each code chunk, this can be used to copy the code.
+
+\end{tcolorbox}
+
+\section{Activating the correct conda software
+environment}\label{activating-the-correct-conda-software-environment}
+
+We have prepared a software environment for you using the
+\href{www.anaconda.org}{anaconda} software management tool. Using conda
+environments is highly recommended when installing bioinformatics
+software in linux as it manages all the dependencies of differenct
+softwares for you.
+
+Activate the custom made \texttt{viroscience\_env} by copying and
+executing the following code:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ExtensionTok{conda}\NormalTok{ activate viroscience\_env}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{tcolorbox}[enhanced jigsaw, coltitle=black, colframe=quarto-callout-note-color-frame, leftrule=.75mm, opacityback=0, colbacktitle=quarto-callout-note-color!10!white, left=2mm, bottomtitle=1mm, toptitle=1mm, opacitybacktitle=0.6, rightrule=.15mm, colback=white, toprule=.15mm, breakable, arc=.35mm, bottomrule=.15mm, titlerule=0mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Note}]
+
+We are now ready to start executing the code to perform quality control
+of our raw Nanopore sequencing data in the next chapter.
+
+\end{tcolorbox}
+
+\bookmarksetup{startatroot}
+
+\chapter{Quality control}\label{quality-control}
+
+\begin{tcolorbox}[enhanced jigsaw, coltitle=black, colframe=quarto-callout-warning-color-frame, leftrule=.75mm, opacityback=0, colbacktitle=quarto-callout-warning-color!10!white, left=2mm, bottomtitle=1mm, toptitle=1mm, opacitybacktitle=0.6, rightrule=.15mm, colback=white, toprule=.15mm, breakable, arc=.35mm, bottomrule=.15mm, titlerule=0mm, title=\textcolor{quarto-callout-warning-color}{\faExclamationTriangle}\hspace{0.5em}{Important!}]
+
+In the next steps we are going to copy-paste code, adjust it to our
+needs, and execute it on the command-line.
+
+\textbf{Please open a plain text editor to paste the code from the next
+steps, to keep track of your progress!}
+
+\end{tcolorbox}
+
+The first step is to decompress the raw FASTQ files. FASTQ files are
+often compressed using gzip to save disk space. We'll use the zcat
+command to decompress them. To do this automatically for all present
+samples, you could create a simple \textbf{bash} script.
+
+Assuming the following file structure:
+
+\begin{verbatim}
+my_project/
+├── raw_data/          # Contains the raw, gzipped FASTQ files
+│   ├── sample1_R1_001.fastq.gz
+│   ├── sample1_R2_001.fastq.gz
+│   ├── sample2_R1_001.fastq.gz
+│   └── sample2_R2_001.fastq.gz
+└── results/           # This is where the output files will be stored
+\end{verbatim}
+
+\textbf{Modify if necessary and run:}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#!/bin/bash}
+
+\CommentTok{\# Define the directory containing the compressed FASTQ files}
+\VariableTok{input\_dir}\OperatorTok{=}\StringTok{"raw\_data"}
+
+\CommentTok{\# Define the directory to store the uncompressed FASTQ files}
+\VariableTok{output\_dir}\OperatorTok{=}\StringTok{"results"}
+
+\CommentTok{\# Loop through all gzipped FASTQ files in the input directory}
+\ControlFlowTok{for}\NormalTok{ file }\KeywordTok{in} \StringTok{"}\VariableTok{$input\_dir}\StringTok{"}\NormalTok{/}\PreprocessorTok{*}\NormalTok{\_R1\_001.fastq.gz}\KeywordTok{;} \ControlFlowTok{do}
+    \CommentTok{\# Extract the sample name from the filename}
+    \VariableTok{sample}\OperatorTok{=}\VariableTok{$(}\FunctionTok{basename} \StringTok{"}\VariableTok{$file}\StringTok{"}\NormalTok{ \_R1\_001.fastq.gz}\VariableTok{)}
+
+    \CommentTok{\# Construct the full paths for the input and output files}
+    \VariableTok{input\_R1}\OperatorTok{=}\StringTok{"}\VariableTok{$input\_dir}\StringTok{/}\VariableTok{$\{sample\}}\StringTok{\_R1\_001.fastq.gz"}
+    \VariableTok{input\_R2}\OperatorTok{=}\StringTok{"}\VariableTok{$input\_dir}\StringTok{/}\VariableTok{$\{sample\}}\StringTok{\_R2\_000.fastq.gz"}
+    \VariableTok{output\_R1}\OperatorTok{=}\StringTok{"}\VariableTok{$output\_dir}\StringTok{/}\VariableTok{$\{sample\}}\StringTok{\_R1.fastq"}
+    \VariableTok{output\_R2}\OperatorTok{=}\StringTok{"}\VariableTok{$output\_dir}\StringTok{/}\VariableTok{$\{sample\}}\StringTok{\_R2.fastq"}
+
+    \CommentTok{\# Unzip the FASTQ files}
+    \FunctionTok{zcat} \StringTok{"}\VariableTok{$input\_R1}\StringTok{"} \OperatorTok{\textgreater{}} \StringTok{"}\VariableTok{$output\_R1}\StringTok{"}
+    \FunctionTok{zcat} \StringTok{"}\VariableTok{$input\_R2}\StringTok{"} \OperatorTok{\textgreater{}} \StringTok{"}\VariableTok{$output\_R2}\StringTok{"}
+
+    \CommentTok{\# Print a message indicating that the files have been unzipped}
+    \BuiltInTok{echo} \StringTok{"Unzipped }\VariableTok{$input\_R1}\StringTok{ and }\VariableTok{$input\_R2}\StringTok{ to }\VariableTok{$output\_R1}\StringTok{ and }\VariableTok{$output\_R2}\StringTok{"}
+\ControlFlowTok{done}
+\end{Highlighting}
+\end{Shaded}
+
+\bookmarksetup{startatroot}
+
+\chapter{De novo assembly}\label{de-novo-assembly}
+
+\section{Placeholder text}\label{placeholder-text}
+
+De novo assembly allows you to reconstruct genomes and genes from
+metagenomic data without relying on a reference genome.
+
+\bookmarksetup{startatroot}
+
+\chapter{Annotation}\label{annotation}
+
+\section{Placeholder text}\label{placeholder-text-1}
+
+\bookmarksetup{startatroot}
+
+\chapter{Parse annotation}\label{parse-annotation}
+
+\section{Placeholder text}\label{placeholder-text-2}
+
+\bookmarksetup{startatroot}
+
+\chapter{Illumina metagenomic data analysis on
+HPC}\label{illumina-metagenomic-data-analysis-on-hpc}
+
+\section{Connecting to a server}\label{connecting-to-a-server}
+
+If we have an HPC (high performance computer) available and want to
+analyze a lot of sequence data and do it fast, we can perform the same
+steps as we have in the previous chapter, but first connect to the HPC.
+
+After setting everything up, we can redo the analysis in a single step:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ExtensionTok{snakemake} \DataTypeTok{\textbackslash{}}
+\NormalTok{{-}{-}snakefile }\DataTypeTok{\textbackslash{}}
+\NormalTok{Snakefile.smk }\DataTypeTok{\textbackslash{}}
+\NormalTok{{-}{-}directory \{ourdir\} }\DataTypeTok{\textbackslash{}}
+\NormalTok{{-}{-}configfile sample\_config=\{config\} }\DataTypeTok{\textbackslash{}}
+\NormalTok{{-}{-}cores \{threads\}}
+\end{Highlighting}
+\end{Shaded}
+
+
+
+
+
+\end{document}

@@ -1,0 +1,31 @@
+project:
+  type: book
+
+book:
+  title: "Illumina metagenomic data analysis"
+  author: "Luc van Zon"
+  date: "02/07/2025"
+  chapters:
+    - index.qmd
+    - preparation.qmd
+    - quality_control.qmd
+    - assembly.qmd
+    - annotation.qmd
+    - parse_annotation.qmd
+    - illumina_hpc.qmd
+
+toc: true
+number-sections: true
+number-depth: 3
+
+format:
+  html:
+    embed-resources: false
+    theme:
+      light: flatly
+      dark: darkly
+  pdf:
+    documentclass: scrreprt
+
+editor: visual
+
