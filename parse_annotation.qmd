@@ -15,20 +15,22 @@ grep "Viruses$" {input.annotated} > {output.viral} || touch {output.viral}
 
 ## Mapping reads to contigs
 
-We can map the quality-filtered and host-filtered reads back to the assembled contigs to quantify the abundance of different contigs in each sample. We will create a mapping file for paired reads (R1 and R2) and singletons (S).
+We can map the quality-filtered and host-filtered reads back to the assembled contigs to quantify the abundance of different contigs in each sample. We will create a mapping file for paired reads (R1 and R2) and singletons (S) and then merge these two files together.
 
 ``` bash
 bwa index {input.contigs}
-bwa mem -Y -t {threads} {input.contigs} {input.R1} {input.R2} | samtools sort - > result/{sample}/mapping/tmp_paired.bam
-bwa mem -Y -t {threads} {input.contigs} {input.S} | samtools sort - > result/{sample}/mapping/tmp_singlets.bam
-samtools merge {output} result/{sample}/mapping/tmp_paired.bam result/{wildcards.sample}/mapping/tmp_singlets.bam
-rm result/{sample}/mapping/tmp_paired.bam result/{sample}/mapping/tmp_singlets.bam
+bwa mem -Y -t {threads} {input.contigs} {input.R1} {input.R2} | samtools sort - > {output.paired}/tmp_paired.bam
+bwa mem -Y -t {threads} {input.contigs} {input.S} | samtools sort - > {output.S}/tmp_singlets.bam
+samtools merge {output.merged}/contigs.bam {output.paired}/tmp_paired.bam {output.S}/tmp_singlets.bam
+rm {output.paired}/tmp_paired.bam {output.S}/tmp_singlets.bam
 ```
 
--   `{sample}` is the name of your sample.
 -   `{input.contigs}` contains the assembled contigs from **step 3.1**.
 -   `{input.R1}`, `{input.R2}` and `{input.S}` are the quality controlled and host-filtered reads from **step 2.4**.
--   `{output}` is a .bam mapping file
+-   `{output.paired}` is the directory for the .bam mapping file based on paired reads.
+-   `{output.S}` is the directory for the .bam mapping file based on singleton reads.
+-   `{output.merged}` is the directory for the merged .bam file. 
+
 
 ## Extract mapped reads
 
@@ -50,8 +52,8 @@ samtools view -bL result/{sample}/mapping/tmp.bed {input.mapped} > {output.viral
 rm result/{sample}/mapping/tmp.bed
 ```
 
--   `{input.annotated}`, `{input.unannotated}` and `{input.viral}` are the .tsv annotation files **step 4.3 and 5.1**.
--   `{input.mapped}` the combined .bam file from **step 5.2**.
+-   `{input.annotated}`, `{input.unannotated}` and `{input.viral}` are the .tsv annotation files from **step 4.3 and 5.1**.
+-   `{input.mapped}` is the combined .bam file from **step 5.2**.
 -   `{output.annotated}`, `{output.unannotated}` and `{output.viral}` are .bam files for each annotation input.
 -   `{sample}` is the name of your sample.
 
@@ -65,12 +67,12 @@ samtools view -bF2052 {input.unannotated} | seqkit bam -Qc - | awk '$2 != 0 {{pr
 samtools view -bF2052 {input.viral} | seqkit bam -Qc - | awk '$2 != 0 {{print}}' > {output.viral}
 ```
 
--   `{input.annotated}`, `{input.unannotated}` and `{input.viral}` are the .bam files from **step 5.3**.
+-   `{input.annotated}`, `{input.unannotated}` and `{input.viral}` are the .bam output files from **step 5.3**.
 -   `{output.annotated}`, `{output.unannotated}` and `{output.viral}` are .tsv files containing the read counts for each .bam file
 
 ## Extract contigs
 
-Lastly, we will extract contigs based on the output from the annotation annotation files.
+Lastly, we will extract contigs for the annotated, unannotated and viral contigs. 
 
 ``` bash
 seqkit grep -f <(cut -f1 {input.annotated}) {input.contigs} > {output.annotated}

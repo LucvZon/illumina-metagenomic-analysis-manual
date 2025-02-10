@@ -47,7 +47,7 @@ After setting everything up, we can redo the analysis for all samples in a singl
 ``` bash
 snakemake \
 --snakefile \
-Snakefile.smk \
+InsertCorrectName.smk \
 --directory {ourdir} \
 --configfile sample_config={config} \
 --cores {threads}
