@@ -34,7 +34,7 @@
     "href": "quality_control.html",
     "title": "2  Quality control",
     "section": "",
-    "text": "2.1 Decompressing FASTQ\nFor simplicity’s sake, we will go through the steps for an individual sample. It is recommended to follow a basic file structure like the following below:\nThe first step is to decompress the raw FASTQ files. FASTQ files are often compressed using gzip to save disk space. We’ll use the zcat command to decompress them.\nModify and run:",
+    "text": "2.1 Decompressing FASTQ\nFor simplicity’s sake, most steps will be catered towards an analysis of a single sample. It is recommended to follow a basic file structure like the following below:\nThe first step is to decompress the raw FASTQ files. FASTQ files are often compressed using gzip to save disk space. We’ll use the zcat command to decompress them.\nModify and run:",
     "crumbs": [
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>Quality control</span>"
     ]
@@ -104,7 +104,7 @@
     "href": "assembly.html#renaming-contigs",
     "title": "3  De novo assembly",
     "section": "3.2 Renaming contigs:",
-    "text": "3.2 Renaming contigs:\nWe will add sample names to the beginning of each contig name. This will make sure that each sample’s contig names are unique before we start aggregating contigs.\nseqkit replace -p \"^\" -r \"{sample}_\" {input} &gt; {output}\n\n{sample} is the sample name that will be placed in front of the contig name\n{input} is your contig file from step 3.1\n{output} is fasta file with the renamed contig",
+    "text": "3.2 Renaming contigs:\nWe will add sample names to the beginning of each contig name. This will make sure that each sample’s contig names are unique before we start aggregating contigs. If you are only dealing with a single sample, then this step can be seen as optional.\nseqkit replace -p \"^\" -r \"{sample}_\" {input} &gt; {output}\n\n{sample} is the sample name that will be placed in front of the contig name\n{input} is your contig file from step 3.1\n{output} is fasta file with the renamed contig",
     "crumbs": [
       "<span class='chapter-number'>3</span>  <span class='chapter-title'>De novo assembly</span>"
     ]
@@ -114,7 +114,7 @@
     "href": "assembly.html#aggregating-contigs",
     "title": "3  De novo assembly",
     "section": "3.3 Aggregating contigs:",
-    "text": "3.3 Aggregating contigs:\nNext we will combine all renamed contigs into a single fasta file so we can perform taxonomic annotation across all samples in one go.\ncat {input} &gt; {output}\n\n{input} are your renamed contig files from step 3.2\n{output} a single .fasta file\n\n\n\n\n\n\n\nNote\n\n\n\nWe have created contigs that are ready for taxonomic annotation in the next chapter.",
+    "text": "3.3 Aggregating contigs:\nNext we will combine all renamed contigs into a single fasta file so we can perform taxonomic annotation across all samples in one go. Once again, this step can be seen as optional if you have a single sample.\ncat {input} &gt; {output}\n\n{input} are your renamed contig files from step 3.2\n{output} a single .fasta file\n\n\n\n\n\n\n\nNote\n\n\n\nWe have created contigs that are ready for taxonomic annotation in the next chapter.",
     "crumbs": [
       "<span class='chapter-number'>3</span>  <span class='chapter-title'>De novo assembly</span>"
     ]
@@ -134,7 +134,7 @@
     "href": "annotation.html#diamond",
     "title": "4  Taxonomic classification",
     "section": "",
-    "text": "diamond blastx \\\n        --frameshift 15 \\\n        -q {input} \\\n        -d {db} \\\n        -o {output} \\\n        -f 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore staxids \\\n        --taxonmap {tx} \\\n        --threads {threads} \\\n        -b 10 -c 1 &gt; {log} 2&gt;&1\n\n{input} is the aggregated contig file created in step 3.3.\n{db} is the protein database to be searched against.\n{output} is a .tsv file containing the annotation results.\n{tx} is a mapping file to convert protein accessions to taxonomic IDs.\n{log} is the log directory.",
+    "text": "diamond blastx \\\n        --frameshift 15 \\\n        -q {input} \\\n        -d {db} \\\n        -o {output} \\\n        -f 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore staxids \\\n        --taxonmap {tx} \\\n        --threads {threads} \\\n        -b 10 -c 1 &gt; {log} 2&gt;&1\n\n{input} is the contig file created in either step 3.3 or step 3.1, depending on your amount of samples.\n{db} is the protein database to be searched against.\n{output} is a .tsv file containing the annotation results.\n{tx} is a mapping file to convert protein accessions to taxonomic IDs.\n{log} is the log directory.",
     "crumbs": [
       "<span class='chapter-number'>4</span>  <span class='chapter-title'>Taxonomic classification</span>"
     ]
@@ -144,7 +144,7 @@
     "href": "annotation.html#split-annotation-files",
     "title": "4  Taxonomic classification",
     "section": "4.2 Split annotation files",
-    "text": "4.2 Split annotation files\nWe will split the combined annotation file back into individual annotation files for each sample.\n        mkdir -p tmp_split\n\n        sed 's/_NODE/|NODE/' {input} | awk -F'|' '{{\n            identifier = $1;  # Construct the identifier using the first two fields\n\n            output_file = \"tmp_split/\" identifier;  # Construct the output filename\n\n            if (!seen[identifier]++) {{\n                close(output_file);  # Close the previous file (if any)\n                output = output_file;  # Update the current output file\n            }}\n\n            print $2 &gt; output;  # Append the line to the appropriate output file\n        }}'\n\n        for file in tmp_split/*; do\n            mkdir -p result/$(basename ${{file}})/annotation/;\n            mv $file result/$(basename ${{file}})/annotation/diamond_output.tsv;\n        done\n\n        rmdir tmp_split\n\n{input} is the combined annotation file from step 4.1.",
+    "text": "4.2 Split annotation files\nWe will split the combined annotation file back into individual annotation files for each sample. This step can be seen as optional if you are dealing with a single sample.\n        mkdir -p tmp_split\n\n        sed 's/_NODE/|NODE/' {input} | awk -F'|' '{{\n            identifier = $1;  # Construct the identifier using the first two fields\n\n            output_file = \"tmp_split/\" identifier;  # Construct the output filename\n\n            if (!seen[identifier]++) {{\n                close(output_file);  # Close the previous file (if any)\n                output = output_file;  # Update the current output file\n            }}\n\n            print $2 &gt; output;  # Append the line to the appropriate output file\n        }}'\n\n        for file in tmp_split/*; do\n            mkdir -p result/$(basename ${{file}})/annotation/;\n            mv $file result/$(basename ${{file}})/annotation/diamond_output.tsv;\n        done\n\n        rmdir tmp_split\n\n{input} is the combined annotation file from step 4.1.",
     "crumbs": [
       "<span class='chapter-number'>4</span>  <span class='chapter-title'>Taxonomic classification</span>"
     ]

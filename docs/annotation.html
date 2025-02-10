@@ -239,7 +239,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">--threads</span> {threads} <span class="dt">\</span></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">-b</span> 10 <span class="at">-c</span> 1 <span class="op">&gt;</span> {log} <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
-<li><code>{input}</code> is the aggregated contig file created in <strong>step 3.3</strong>.</li>
+<li><code>{input}</code> is the contig file created in either <strong>step 3.3</strong> or <strong>step 3.1</strong>, depending on your amount of samples.</li>
 <li><code>{db}</code> is the protein database to be searched against.</li>
 <li><code>{output}</code> is a .tsv file containing the annotation results.</li>
 <li><code>{tx}</code> is a mapping file to convert protein accessions to taxonomic IDs.</li>
@@ -249,7 +249,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="split-annotation-files" class="level2" data-number="4.2">
 <h2 data-number="4.2" class="anchored" data-anchor-id="split-annotation-files"><span class="header-section-number">4.2</span> Split annotation files</h2>
-<p>We will split the combined annotation file back into individual annotation files for each sample.</p>
+<p>We will split the combined annotation file back into individual annotation files for each sample. This step can be seen as optional if you are dealing with a single sample.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mkdir</span> <span class="at">-p</span> tmp_split</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">sed</span> <span class="st">'s/_NODE/|NODE/'</span> {input} <span class="kw">|</span> <span class="fu">awk</span> <span class="at">-F</span><span class="st">'|'</span> <span class="st">'{{</span></span>
