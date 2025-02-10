@@ -18,7 +18,7 @@ The `-f 6` parameter will ensure the output is in a tabular format. The `6` may 
         -b 10 -c 1 > {log} 2>&1
 ```
 
--   `{input}` is the aggregated contig file created in **step 3.3**.
+-   `{input}` is the contig file created in either **step 3.3** or **step 3.1**, depending on your amount of samples.
 -   `{db}` is the protein database to be searched against.
 -   `{output}` is a .tsv file containing the annotation results.
 -   `{tx}` is a mapping file to convert protein accessions to taxonomic IDs.
@@ -28,7 +28,7 @@ Multiple different databases and taxomaps can be found in: `\\cifs.research.eras
 
 ## Split annotation files
 
-We will split the combined annotation file back into individual annotation files for each sample.
+We will split the combined annotation file back into individual annotation files for each sample. This step can be seen as optional if you are dealing with a single sample. 
 
 ``` bash
         mkdir -p tmp_split

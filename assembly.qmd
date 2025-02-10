@@ -31,7 +31,7 @@ The `if [[ $COUNT -gt 0 ]]` condition checks if singleton reads are present. If 
 
 ## Renaming contigs:
 
-We will add sample names to the beginning of each contig name. This will make sure that each sample's contig names are unique before we start aggregating contigs. 
+We will add sample names to the beginning of each contig name. This will make sure that each sample's contig names are unique before we start aggregating contigs. If you are only dealing with a single sample, then this step can be seen as optional. 
 
 ``` bash
 seqkit replace -p "^" -r "{sample}_" {input} > {output}
@@ -43,7 +43,7 @@ seqkit replace -p "^" -r "{sample}_" {input} > {output}
 
 ## Aggregating contigs:
 
-Next we will combine all renamed contigs into a single fasta file so we can perform taxonomic annotation across all samples in one go.
+Next we will combine all renamed contigs into a single fasta file so we can perform taxonomic annotation across all samples in one go. Once again, this step can be seen as optional if you have a single sample. 
 
 ``` bash
 cat {input} > {output}
