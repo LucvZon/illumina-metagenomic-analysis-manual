@@ -56,7 +56,7 @@ rm {output.dir}/*.clstr
 
 The [fastp](https://github.com/OpenGene/fastp) software is a very fast multipurpose quality control software to perform quality and sequence adapter trimming for Illumina short-read and Nanopore long-read data.
 
-Because we are processing Illumina short-read data,
+**Run and modify:**
 
 ``` bash
         fastp -i {input.R1} -I {input.R2} \
@@ -84,7 +84,7 @@ Because we are processing Illumina short-read data,
 
 ## Host filtering
 
-This step removes reads that map to a host genome (e.g., human). This is important if you're studying metagenomes from a host-associated environment (e.g., gut microbiome, stool).
+This step removes reads that map to a host genome (e.g., human). This is important if you're studying metagenomes from a host-associated environment (e.g., gut microbiome, skin surface).
 
 ``` bash
 bwa mem -aY -t {threads} {params.reference} {input.R1} {input.R2} | \
