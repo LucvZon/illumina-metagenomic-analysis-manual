@@ -277,7 +277,7 @@ Important!
 <section id="running-fastp-quality-control-software" class="level2" data-number="2.3">
 <h2 data-number="2.3" class="anchored" data-anchor-id="running-fastp-quality-control-software"><span class="header-section-number">2.3</span> Running fastp quality control software</h2>
 <p>The <a href="https://github.com/OpenGene/fastp">fastp</a> software is a very fast multipurpose quality control software to perform quality and sequence adapter trimming for Illumina short-read and Nanopore long-read data.</p>
-<p>Because we are processing Illumina short-read data,</p>
+<p><strong>Run and modify:</strong></p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>        <span class="ex">fastp</span> <span class="at">-i</span> {input.R1} <span class="at">-I</span> {input.R2} <span class="dt">\</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">-o</span> {output.R1} <span class="at">-O</span> {output.R2} <span class="dt">\</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">--unpaired1</span> {output.S} <span class="at">--unpaired2</span> {output.S} <span class="at">--failed_out</span> {output.failed} <span class="dt">\</span></span>
@@ -312,7 +312,7 @@ Note
 </section>
 <section id="host-filtering" class="level2" data-number="2.4">
 <h2 data-number="2.4" class="anchored" data-anchor-id="host-filtering"><span class="header-section-number">2.4</span> Host filtering</h2>
-<p>This step removes reads that map to a host genome (e.g., human). This is important if you’re studying metagenomes from a host-associated environment (e.g., gut microbiome, stool).</p>
+<p>This step removes reads that map to a host genome (e.g., human). This is important if you’re studying metagenomes from a host-associated environment (e.g., gut microbiome, skin surface).</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">bwa</span> mem <span class="at">-aY</span> <span class="at">-t</span> {threads} {params.reference} {input.R1} {input.R2} <span class="kw">|</span> <span class="dt">\</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">samtools</span> fastq <span class="at">-f</span> 4 <span class="at">-s</span> /dev/null <span class="at">-1</span> {output.R1} <span class="at">-2</span> {output.R2} <span class="at">-</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="ex">bwa</span> mem <span class="at">-aY</span> <span class="at">-t</span> {threads} {params.reference}  {input.S} <span class="kw">|</span> <span class="dt">\</span></span>

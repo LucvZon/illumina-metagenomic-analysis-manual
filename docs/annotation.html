@@ -228,6 +228,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="diamond" class="level2" data-number="4.1">
 <h2 data-number="4.1" class="anchored" data-anchor-id="diamond"><span class="header-section-number">4.1</span> Diamond</h2>
 <p>Now we will annotate the aggregated contigs by assigning taxonomic classifications to them based on sequence similarity to known proteins in a database using <a href="https://github.com/bbuchfink/diamond">diamond blastx</a>.</p>
+<p>The <code>-f 6</code> parameter will ensure the output is in a tabular format. The <code>6</code> may be followed by a space-separated list of various keywords, each specifying a field of the output. For a full description of the output, please visit <a href="https://www.metagenomics.wiki/tools/blast/blastn-output-format-6">here</a>.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>        <span class="ex">diamond</span> blastx <span class="dt">\</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">--frameshift</span> 15 <span class="dt">\</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">-q</span> {input} <span class="dt">\</span></span>
@@ -290,7 +291,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>{output.unannotated}</code> is a set of unannotated contig IDs.</li>
 <li><code>{log}</code> is the log directory.</li>
 </ul>
-<p>[Add note here…]</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>We can now move on to the final steps where we will create various files needed for downstream analysis.</p>
+</div>
+</div>
 
 
 </section>

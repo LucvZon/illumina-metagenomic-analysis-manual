@@ -233,26 +233,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="cf">then</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="ex">spades.py</span> <span class="at">-t</span> {threads} <span class="dt">\</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">--meta</span> <span class="dt">\</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">-o</span> {params.spades_folder} <span class="dt">\</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">-o</span> {output} <span class="dt">\</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">-1</span> {input.R1} <span class="dt">\</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">-2</span> {input.R2} <span class="dt">\</span></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">-s</span> {input.S} <span class="op">&gt;</span> {log} <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="ex">spades.py</span> <span class="at">-t</span> {threads} <span class="dt">\</span></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">--meta</span> <span class="dt">\</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">-o</span> {params.spades_folder} <span class="dt">\</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">-o</span> {output} <span class="dt">\</span></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">-1</span> {input.R1} <span class="dt">\</span></span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">-2</span> {input.R2} <span class="op">&gt;</span> {log} <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span></span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span>    </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The <code>if [[ $COUNT -gt 0 ]]</code> condition checks if singleton reads are present. If so, we will include them with the -s option in the spades.py command</p>
 <ul>
 <li><code>{input.R1}</code>, <code>{input.R2}</code> and <code>{input.S}</code> are host-filtered FASTQ files (R1, R2, and S) from <strong>step 2.3</strong>.</li>
-<li><code>{params.spades_folder}</code> defines the directory where the assembly results will be stored.</li>
+<li><code>{output}</code> defines the directory where the assembly results will be stored.</li>
 <li><code>{log}</code> specifies the log directory.</li>
 </ul>
-<p>Next we will combine all contigs into a single fasta file so we can perform taxonomic annotation across all samples in one go. Before performing this step, we will add sample names to the beginning of each contig name. This will allow us to split annotation files back into individual annotation files for each sample.</p>
 </section>
 <section id="renaming-contigs" class="level2" data-number="3.2">
 <h2 data-number="3.2" class="anchored" data-anchor-id="renaming-contigs"><span class="header-section-number">3.2</span> Renaming contigs:</h2>
+<p>We will add sample names to the beginning of each contig name. This will make sure that each sample’s contig names are unique before we start aggregating contigs.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">seqkit</span> replace <span class="at">-p</span> <span class="st">"^"</span> <span class="at">-r</span> <span class="st">"{sample}_"</span> {input} <span class="op">&gt;</span> {output}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
 <li><code>{sample}</code> is the sample name that will be placed in front of the contig name</li>
@@ -262,6 +263,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="aggregating-contigs" class="level2" data-number="3.3">
 <h2 data-number="3.3" class="anchored" data-anchor-id="aggregating-contigs"><span class="header-section-number">3.3</span> Aggregating contigs:</h2>
+<p>Next we will combine all renamed contigs into a single fasta file so we can perform taxonomic annotation across all samples in one go.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> {input} <span class="op">&gt;</span> {output}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
 <li><code>{input}</code> are your renamed contig files from <strong>step 3.2</strong></li>
