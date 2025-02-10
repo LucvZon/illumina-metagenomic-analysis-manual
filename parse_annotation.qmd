@@ -1,4 +1,4 @@
-# Final steps (think of name)
+# Extracting Viral Sequences and Analyzing Mapped Reads
 
 We will conclude the pipeline with various steps which will create valuable data files for further downstream analysis.
 

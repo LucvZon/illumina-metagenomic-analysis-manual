@@ -5,6 +5,7 @@ project:
 book:
   title: "Illumina metagenomic data analysis"
   author: "Luc van Zon"
+  search: TRUE
   date: "02/07/2025"
   chapters:
     - index.qmd
@@ -14,7 +15,6 @@ book:
     - annotation.qmd
     - parse_annotation.qmd
     - illumina_hpc.qmd
-  search: TRUE
 
 toc: true
 number-sections: true
