@@ -4,6 +4,8 @@
 
 Now we will annotate the aggregated contigs by assigning taxonomic classifications to them based on sequence similarity to known proteins in a database using [diamond blastx](https://github.com/bbuchfink/diamond).
 
+The `-f 6` parameter will ensure the output is in a tabular format. The `6` may be followed by a space-separated list of various keywords, each specifying a field of the output. For a full description of the output, please visit [here](https://www.metagenomics.wiki/tools/blast/blastn-output-format-6).
+
 ``` bash
         diamond blastx \
         --frameshift 15 \
@@ -69,8 +71,10 @@ Now we will process the DIAMOND output files with a custom Python script called 
 
 -   `{input.annotation}` is the annotation file **step 4.2**.
 -   `{input.contigs}` are the contigs from the SPAdes **step 3.1**.
--   `{output.annotated}` is a set of annotated contigs. 
--   `{output.unannotated}` is a set of unannotated contig IDs. 
+-   `{output.annotated}` is a set of annotated contigs.
+-   `{output.unannotated}` is a set of unannotated contig IDs.
 -   `{log}` is the log directory.
 
-[Add note here...] 
+::: callout-note
+We can now move on to the final steps where we will create various files needed for downstream analysis.
+:::
