@@ -23,5 +23,5 @@ conda activate {environment}
 -   `{environment}` is the name of your chosen conda environment.
 
 ::: callout-note
-We are now ready to start executing the code to perform quality control of our raw Nanopore sequencing data in the next chapter.
+We are now ready to start executing the code to perform quality control of our raw Illumina sequencing data in the next chapter.
 :::
