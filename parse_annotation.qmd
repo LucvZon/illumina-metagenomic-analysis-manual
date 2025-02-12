@@ -54,8 +54,9 @@ rm {output}/tmp.bed
 
 -   `{input.annotated}`, `{input.unannotated}` and `{input.viral}` are the .tsv annotation files from **step 4.3 and 5.1**.
 -   `{input.mapped}` is the combined .bam file from **step 5.2**.
+-   `{output}` is a folder where temporary .bed files will be stored. 
 -   `{output.annotated}`, `{output.unannotated}` and `{output.viral}` are .bam files for each annotation input.
--   `{sample}` is the name of your sample.
+
 
 ## Count mapped reads
 
