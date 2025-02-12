@@ -32,9 +32,6 @@ We will split the combined annotation file back into individual annotation files
 **Modify and run:**
 
 ``` bash
-#!/bin/bash
-
-# Split annotation files
 mkdir -p tmp_split
 
 sed 's/_NODE/|NODE/' {input} | awk -F'|' '{
