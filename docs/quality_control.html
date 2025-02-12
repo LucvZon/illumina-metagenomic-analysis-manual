@@ -249,12 +249,18 @@ Important!
 │   └── sample2_R2_001.fastq.gz
 └── results/           # This is where the output files will be stored
 └── log/               # This is where log files will be stored</code></pre>
+<p>When running any command that generates output files, it’s essential to ensure that the output directory exists <em>before</em> executing the command. While some tools will automatically create the output directory if it’s not present, this behavior is not guaranteed. If the output directory doesn’t exist and the tool doesn’t create it, the command will likely fail with an error message (or, worse, it might fail silently, leading to unexpected results).</p>
+<p>To prevent a lot of future frustration, create your output directories beforehand with the <code>mkdir</code> command as such:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> results</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> log</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a subdirectory</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> results/assembly</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <section id="decompressing-fastq" class="level2" data-number="2.1">
 <h2 data-number="2.1" class="anchored" data-anchor-id="decompressing-fastq"><span class="header-section-number">2.1</span> Decompressing FASTQ</h2>
 <p>The first step is to decompress the raw FASTQ files. FASTQ files are often compressed using gzip to save disk space. We’ll use the zcat command to decompress them.</p>
 <p><strong>Modify and run:</strong></p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> {input.folder}/{sample}_R1_001.fastq.gz <span class="op">&gt;</span> {output.folder}/{sample}_R1.fastq</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> {input.folder}/{sample}_R2_001.fastq.gz <span class="op">&gt;</span> {output.folder}/{sample}_R2.fastq</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> {input.folder}/{sample}_R1_001.fastq.gz <span class="op">&gt;</span> {output.folder}/{sample}_R1.fastq</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> {input.folder}/{sample}_R2_001.fastq.gz <span class="op">&gt;</span> {output.folder}/{sample}_R2.fastq</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
 <li><code>{input.folder}</code> is where your raw .fastq.gz data is stored.</li>
 <li><code>{sample}</code> is the name of your sample.</li>
@@ -265,9 +271,9 @@ Important!
 <h2 data-number="2.2" class="anchored" data-anchor-id="deduplicate-reads"><span class="header-section-number">2.2</span> Deduplicate reads</h2>
 <p>This step removes duplicate reads from the uncompressed FASTQ files. Duplicate reads can arise during PCR amplification or sequencing and can skew downstream analyses. We’ll use the cd-hit-dup program to identify and remove these duplicates.</p>
 <p>After cd-hit-dup command is finished, we’ll remove the .clstr file that cd-hit-dup creates. This file contains information about the clusters of duplicate reads, but it’s not needed for downstream analysis, so we can safely remove it to save disk space.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cd-hit-dup</span> <span class="at">-u</span> 50 <span class="at">-i</span> {input.R1} <span class="at">-i2</span> {input.R2} <span class="at">-o</span> {output.R1} <span class="at">-o2</span> {output.R2} <span class="op">&gt;</span> {logs}/{sample}_cd-hit.log <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> {output.dir}/<span class="pp">*</span>.clstr</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cd-hit-dup</span> <span class="at">-u</span> 50 <span class="at">-i</span> {input.R1} <span class="at">-i2</span> {input.R2} <span class="at">-o</span> {output.R1} <span class="at">-o2</span> {output.R2} <span class="op">&gt;</span> {logs}/{sample}_cd-hit.log <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> {output.dir}/<span class="pp">*</span>.clstr</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
 <li><code>{input.R1}</code> and <code>{input.R2}</code> are the decompressed R1 and R2 reads from <strong>step 2.1</strong>.</li>
 <li><code>{output.R1}</code> and <code>{output.R2}</code> are your deduplicated .fastq reads. Think of where you want to store your results, something like <code>results/dedup/</code> will be sufficient, so output.R1 turns into <code>result/dedup/SampleName_R1.fastq</code>, etc.</li>
@@ -278,22 +284,24 @@ Important!
 <h2 data-number="2.3" class="anchored" data-anchor-id="running-fastp-quality-control-software"><span class="header-section-number">2.3</span> Running fastp quality control software</h2>
 <p>The <a href="https://github.com/OpenGene/fastp">fastp</a> software is a very fast multipurpose quality control software to perform quality and sequence adapter trimming for Illumina short-read and Nanopore long-read data.</p>
 <p><strong>Run and modify:</strong></p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>        <span class="ex">fastp</span> <span class="at">-i</span> {input.R1} <span class="at">-I</span> {input.R2} <span class="dt">\</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">-o</span> {output.R1} <span class="at">-O</span> {output.R2} <span class="dt">\</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">--unpaired1</span> {output.S} <span class="at">--unpaired2</span> {output.S} <span class="at">--failed_out</span> {output.failed} <span class="dt">\</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">--length_required</span> 50 <span class="dt">\</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">--low_complexity_filter</span> <span class="dt">\</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">--cut_right</span> <span class="dt">\</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">--cut_right_window_size</span> 5 <span class="dt">\</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">--cut_right_mean_quality</span> 25 <span class="dt">\</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">--thread</span> {threads} <span class="dt">\</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">-j</span> result/{sample}/dedup_qc/qc_report.json <span class="at">-h</span> result/{sample}/dedup_qc/qc_report.html <span class="op">&gt;</span> {log} <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">fastp</span> <span class="at">-i</span> {input.R1} <span class="at">-I</span> {input.R2} <span class="dt">\</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>-o {output.R1} <span class="at">-O</span> {output.R2} <span class="dt">\</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>--unpaired1 {output.S} <span class="at">--unpaired2</span> {output.S} <span class="at">--failed_out</span> {output.failed} <span class="dt">\</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>--length_required 50 <span class="dt">\</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>--low_complexity_filter <span class="dt">\</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>--cut_right <span class="dt">\</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>--cut_right_window_size 5 <span class="dt">\</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>--cut_right_mean_quality 25 <span class="dt">\</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>--thread {threads} <span class="dt">\</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>-j {output.J}/qc_report.json <span class="at">-h</span> {output.H}/qc_report.html <span class="op">&gt;</span> {log} <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
 <li><code>{input.R1}</code> and <code>{input.R2}</code> are the reads belonging to the deduplicated sample <strong>step 2.2</strong>.</li>
 <li><code>{output.R1}</code> and <code>{output.R2}</code> are the the quality controlled .fastq filenames.</li>
 <li><code>{output.S}</code> –unpaired1 and –unpaired2 tells fastp to write unpaired reads to a .fastq file. In our case, we write unpaired reads (whether they originated from the R1 or R2 file) to the same file, output.S.</li>
 <li><code>{output.failed}</code> .fastq file that stores reads (either merged or unmerged) which failed the quality filters</li>
 <li><code>{sample}</code> is the name of your sample.</li>
+<li><code>{output.J}</code> is the directory for the json report file</li>
+<li><code>{output.H}</code> is the directory for the html report file</li>
 <li><code>{log}</code> is the directory for log files.</li>
 </ul>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -313,15 +321,20 @@ Note
 <section id="host-filtering" class="level2" data-number="2.4">
 <h2 data-number="2.4" class="anchored" data-anchor-id="host-filtering"><span class="header-section-number">2.4</span> Host filtering</h2>
 <p>This step removes reads that map to a host genome (e.g., human). This is important if you’re studying metagenomes from a host-associated environment (e.g., gut microbiome, skin surface).</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">bwa</span> mem <span class="at">-aY</span> <span class="at">-t</span> {threads} {params.reference} {input.R1} {input.R2} <span class="kw">|</span> <span class="dt">\</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">samtools</span> fastq <span class="at">-f</span> 4 <span class="at">-s</span> /dev/null <span class="at">-1</span> {output.R1} <span class="at">-2</span> {output.R2} <span class="at">-</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="ex">bwa</span> mem <span class="at">-aY</span> <span class="at">-t</span> {threads} {params.reference}  {input.S} <span class="kw">|</span> <span class="dt">\</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="ex">samtools</span> fastq <span class="at">-f</span> 4 <span class="at">-</span> <span class="op">&gt;</span> {output.S}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>To improve computational speed and reduce memory usage, it is required to index your reference sequence before proceeding to the host filtering step.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Index reference genome</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">bwa</span> index {reference}</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Host filtering</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="ex">bwa</span> mem <span class="at">-aY</span> <span class="at">-t</span> {threads} {reference} {input.R1} {input.R2} <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="ex">samtools</span> fastq <span class="at">-f</span> 4 <span class="at">-s</span> /dev/null <span class="at">-1</span> {output.R1} <span class="at">-2</span> {output.R2} <span class="at">-</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="ex">bwa</span> mem <span class="at">-aY</span> <span class="at">-t</span> {threads} {reference}  {input.S} <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="ex">samtools</span> fastq <span class="at">-f</span> 4 <span class="at">-</span> <span class="op">&gt;</span> {output.S}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
 <li><code>{input.R1}</code> and <code>{input.R2}</code> are QC-filtered FASTQ files from <strong>step 2.3</strong>.</li>
 <li><code>{output.R1}</code> and <code>{output.R2}</code> are FASTQ files (R1, R2) containing reads that did not map to the host genome.</li>
 <li><code>{input.S}</code> are singleton reads from the previous step (output.S).</li>
-<li><code>{params.reference}</code> is a reference genome sequence.</li>
+<li><code>{reference}</code> is a reference genome sequence.</li>
 </ul>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">

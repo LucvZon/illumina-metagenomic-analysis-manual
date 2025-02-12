@@ -229,15 +229,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 data-number="4.1" class="anchored" data-anchor-id="diamond"><span class="header-section-number">4.1</span> Diamond</h2>
 <p>Now we will annotate the aggregated contigs by assigning taxonomic classifications to them based on sequence similarity to known proteins in a database using <a href="https://github.com/bbuchfink/diamond">diamond blastx</a>.</p>
 <p>The <code>-f 6</code> parameter will ensure the output is in a tabular format. The <code>6</code> may be followed by a space-separated list of various keywords, each specifying a field of the output. For a full description of the output, please visit <a href="https://www.metagenomics.wiki/tools/blast/blastn-output-format-6">here</a>.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>        <span class="ex">diamond</span> blastx <span class="dt">\</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">--frameshift</span> 15 <span class="dt">\</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">-q</span> {input} <span class="dt">\</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">-d</span> {db} <span class="dt">\</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">-o</span> {output} <span class="dt">\</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">-f</span> 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore staxids <span class="dt">\</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">--taxonmap</span> {tx} <span class="dt">\</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">--threads</span> {threads} <span class="dt">\</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">-b</span> 10 <span class="at">-c</span> 1 <span class="op">&gt;</span> {log} <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">diamond</span> blastx <span class="dt">\</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>-q {input} <span class="dt">\</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>-d {db} <span class="dt">\</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>-o {output} <span class="dt">\</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>-f 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore staxids <span class="dt">\</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>--taxonmap {tx} <span class="dt">\</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>--threads {threads} <span class="dt">\</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>-b 10 <span class="at">-c</span> 1 <span class="op">&gt;</span> {log} <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
 <li><code>{input}</code> is the contig file created in either <strong>step 3.3</strong> or <strong>step 3.1</strong>, depending on your amount of samples.</li>
 <li><code>{db}</code> is the protein database to be searched against.</li>
@@ -250,45 +249,51 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="split-annotation-files" class="level2" data-number="4.2">
 <h2 data-number="4.2" class="anchored" data-anchor-id="split-annotation-files"><span class="header-section-number">4.2</span> Split annotation files</h2>
 <p>We will split the combined annotation file back into individual annotation files for each sample. This step can be seen as optional if you are dealing with a single sample.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mkdir</span> <span class="at">-p</span> tmp_split</span>
+<p><strong>Modify and run:</strong></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">sed</span> <span class="st">'s/_NODE/|NODE/'</span> {input} <span class="kw">|</span> <span class="fu">awk</span> <span class="at">-F</span><span class="st">'|'</span> <span class="st">'{{</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="st">            identifier = $1;  # Construct the identifier using the first two fields</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Split annotation files</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> tmp_split</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="st">            output_file = "tmp_split/" identifier;  # Construct the output filename</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="st">            if (!seen[identifier]++) {{</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="st">                close(output_file);  # Close the previous file (if any)</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="st">                output = output_file;  # Update the current output file</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="st">            }}</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="st">            print $2 &gt; output;  # Append the line to the appropriate output file</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="st">        }}'</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sed</span> <span class="st">'s/_NODE/|NODE/'</span> {input} <span class="kw">|</span> <span class="fu">awk</span> <span class="at">-F</span><span class="st">'|'</span> <span class="st">'{</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="st">    identifier = $1;  # Construct the identifier using the first two fields</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="st">    output_file = "tmp_split/" identifier;  # Construct the output filename</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="st">    if (!seen[identifier]++) {</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="st">        close(output_file);  # Close the previous file (if any)</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="st">        output = output_file;  # Update the current output file</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="st">    }</span></span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> file <span class="kw">in</span> tmp_split/<span class="pp">*</span><span class="kw">;</span> <span class="cf">do</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>            <span class="fu">mkdir</span> <span class="at">-p</span> result/<span class="va">$(</span><span class="fu">basename</span> <span class="va">${</span><span class="er">{file</span><span class="va">}</span>}<span class="va">)</span>/annotation/<span class="kw">;</span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>            <span class="fu">mv</span> <span class="va">$file</span> result/<span class="va">$(</span><span class="fu">basename</span> <span class="va">${</span><span class="er">{file</span><span class="va">}</span>}<span class="va">)</span>/annotation/diamond_output.tsv<span class="kw">;</span></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">done</span></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>        <span class="fu">rmdir</span> tmp_split</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="st">    print $2 &gt; output;  # Append the line to the appropriate output file</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="st">}'</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> file <span class="kw">in</span> tmp_split/<span class="pp">*</span><span class="kw">;</span> <span class="cf">do</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mkdir</span> <span class="at">-p</span> {output}/<span class="va">$(</span><span class="fu">basename</span> <span class="st">"</span><span class="va">$file</span><span class="st">"</span><span class="va">)</span>/<span class="kw">;</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mv</span> <span class="st">"</span><span class="va">$file</span><span class="st">"</span> {output}/<span class="va">$(</span><span class="fu">basename</span> <span class="st">"</span><span class="va">$file</span><span class="st">"</span><span class="va">)</span>/diamond_output.tsv<span class="kw">;</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="fu">rmdir</span> tmp_split</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
 <li><code>{input}</code> is the combined annotation file from <strong>step 4.1</strong>.</li>
+<li><code>{output}</code> is a directory path. This directory will be automatically filled with subdirectories for each sample. In each subdirectory you will find a diamond_out.tsv file.</li>
 </ul>
 </section>
 <section id="parsing-diamond-output" class="level2" data-number="4.3">
 <h2 data-number="4.3" class="anchored" data-anchor-id="parsing-diamond-output"><span class="header-section-number">4.3</span> Parsing diamond output</h2>
 <p>Now we will process the DIAMOND output files with a custom Python script called <strong>post_process_diamond.py</strong>. This script will further enrich taxonomic information for each contig based on the DIAMOND alignment results. If a contig has multiple matches in the database, it will select the best hit based on a combined score of bitscore and length. Lastly, it separates the contigs into two lists: those that were successfully annotated and unannotated.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>        <span class="ex">python</span> /mnt/viro0002/workgroups_projects/Bioinformatics/scripts/post_process_diamond.py <span class="dt">\</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">-i</span> {input.annotation} <span class="dt">\</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">-c</span> {input.contigs} <span class="dt">\</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">-o</span> {output.annotated} <span class="dt">\</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">-u</span> {output.unannotated} <span class="dt">\</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">-log</span> {log}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This python script utilizes the <a href="https://biopython.org/">biopython library</a>.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> /mnt/viro0002/workgroups_projects/Bioinformatics/scripts/post_process_diamond.py <span class="dt">\</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>-i {input.annotation} <span class="dt">\</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>-c {input.contigs} <span class="dt">\</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>-o {output.annotated} <span class="dt">\</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>-u {output.unannotated} <span class="dt">\</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>-log {log}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
 <li><code>{input.annotation}</code> is the annotation file <strong>step 4.2</strong>.</li>
 <li><code>{input.contigs}</code> are the contigs from the SPAdes <strong>step 3.1</strong>.</li>
-<li><code>{output.annotated}</code> is a set of annotated contigs.</li>
-<li><code>{output.unannotated}</code> is a set of unannotated contig IDs.</li>
+<li><code>{output.annotated}</code> is a .tsv file with a set of annotated contigs.</li>
+<li><code>{output.unannotated}</code> is a .tsv file with a set of unannotated contig IDs.</li>
 <li><code>{log}</code> is the log directory.</li>
 </ul>
 <div class="callout callout-style-default callout-note callout-titled">
