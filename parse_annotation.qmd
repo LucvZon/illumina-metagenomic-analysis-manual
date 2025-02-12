@@ -38,18 +38,18 @@ We will extract the reads for each annotation file that we've created.
 
 ``` bash
 #Create temporary BED file to extract the annotated mappings from the BAM of all mappings
-cut -f1 {input.annotated} | awk -F'_' '{{print $0 "\t" 0 "\t" $4}}' > result/{sample}/mapping/tmp.bed
-samtools view -bL result/{sample}/mapping/tmp.bed {input.mapped} > {output.annotated}
+cut -f1 {input.annotated} | awk -F'_' '{{print $0 "\t" 0 "\t" $4}}' > {output}/tmp.bed
+samtools view -bL {output}/tmp.bed {input.mapped} > {output.annotated}
       
 #Do the same for the unannotated contigs
-cut -f1 {input.unannotated} | awk -F'_' '{{print $0 "\t" 0 "\t" $4}}' > result/{sample}/mapping/tmp.bed
-samtools view -bL result/{sample}/mapping/tmp.bed {input.mapped} > {output.unannotated}
+cut -f1 {input.unannotated} | awk -F'_' '{{print $0 "\t" 0 "\t" $4}}' > {output}/tmp.bed
+samtools view -bL {output}/tmp.bed {input.mapped} > {output.unannotated}
 
 #Do the same for the viral contigs
-cut -f1 {input.viral} | awk -F'_' '{{print $0 "\t" 0 "\t" $4}}' > result/{sample}/mapping/tmp.bed
-samtools view -bL result/{sample}/mapping/tmp.bed {input.mapped} > {output.viral}
+cut -f1 {input.viral} | awk -F'_' '{{print $0 "\t" 0 "\t" $4}}' > {output}/tmp.bed
+samtools view -bL {output}/tmp.bed {input.mapped} > {output.viral}
 
-rm result/{sample}/mapping/tmp.bed
+rm {output}/tmp.bed
 ```
 
 -   `{input.annotated}`, `{input.unannotated}` and `{input.viral}` are the .tsv annotation files from **step 4.3 and 5.1**.
