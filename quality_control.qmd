@@ -32,9 +32,9 @@ mkdir -p log
 mkdir -p results/assembly
 ```
 
-## Decompressing FASTQ
+## Merging and decompressing FASTQ
 
-The first step is to decompress the raw FASTQ files. FASTQ files are often compressed using gzip to save disk space. We'll use the zcat command to decompress them.
+Any file in linux can be pasted to another file using the cat command. zcat in addition also unzips gzipped files (e.g. .fastq.gz extension). If your files are already unzipped, use cat instead.
 
 **Modify and run:**
 
