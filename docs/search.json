@@ -244,7 +244,7 @@
     "href": "illumina_hpc.html#running-the-workflow",
     "title": "6  Automating data analysis",
     "section": "6.2 Running the workflow",
-    "text": "6.2 Running the workflow\nAfter setting everything up, we can redo the analysis for all samples in a single step. First we will test out a dry run to see if any errors appear. A dry run will not execute any of the commands but will instead display what would be done. This will help identify any errors in the Snakemake or config file.\nsnakemake \\\n--snakefile \\\nillumina_snakemake.smk \\\n--use-conda \\\n--cores {threads} \\\n--dryrun\nIf no errors appear, then remove the --dryrun argument and run it again to fully execute the workflow.",
+    "text": "6.2 Running the workflow\nAfter setting everything up, we can redo the analysis for all samples in a single step. First we will test out a dry run to see if any errors appear. A dry run will not execute any of the commands but will instead display what would be done. This will help identify any errors in the Snakemake file.\nsnakemake \\\n--snakefile \\\nillumina_snakemake.smk \\\n--use-conda \\\n--cores {threads} \\\n--dryrun\nIf no errors appear, then remove the --dryrun argument and run it again to fully execute the workflow.",
     "crumbs": [
       "<span class='chapter-number'>6</span>  <span class='chapter-title'>Automating data analysis</span>"
     ]

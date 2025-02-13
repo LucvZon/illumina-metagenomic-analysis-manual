@@ -239,7 +239,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="running-the-workflow" class="level2" data-number="6.2">
 <h2 data-number="6.2" class="anchored" data-anchor-id="running-the-workflow"><span class="header-section-number">6.2</span> Running the workflow</h2>
-<p>After setting everything up, we can redo the analysis for all samples in a single step. First we will test out a dry run to see if any errors appear. A dry run will not execute any of the commands but will instead display what would be done. This will help identify any errors in the Snakemake or config file.</p>
+<p>After setting everything up, we can redo the analysis for all samples in a single step. First we will test out a dry run to see if any errors appear. A dry run will not execute any of the commands but will instead display what would be done. This will help identify any errors in the Snakemake file.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">snakemake</span> <span class="dt">\</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>--snakefile <span class="dt">\</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>illumina_snakemake.smk <span class="dt">\</span></span>
