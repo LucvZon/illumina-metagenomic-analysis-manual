@@ -8,7 +8,7 @@ In the next steps we are going to copy-paste code, adjust it to our needs, and e
 **Please open a plain text editor to paste the code from the next steps, to keep track of your progress!**
 :::
 
-For simplicity's sake, most steps will be catered towards an analysis of a single sample. It is recommended to follow a basic file structure like the following below:
+For simplicity's sake, most steps will be geared towards an analysis of a single sample. It is recommended to follow a basic file structure like the following below:
 
 ```         
 my_project/
