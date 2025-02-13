@@ -14,7 +14,7 @@
     "href": "preparation.html",
     "title": "1  Preparation",
     "section": "",
-    "text": "1.1 Activating the correct conda software environment\nAnaconda is a software management tool that can be used for creating specific environments where bioinformatics software can be installed in Linux, as it manages all the dependencies of different softwares for you. To run the steps outlined in this manual, be sure to first activate the proper conda environment.\nActivate a conda environment can be done by copying and executing the following code:",
+    "text": "1.1 Activating the correct conda software environment\nAnaconda is a software management tool that can be used for creating specific environments where bioinformatics software can be installed in Linux, as it manages all the dependencies of different softwares for you. We will use Conda to create a dedicated environment for this manual’s workflow, ensuring that all required tools are installed and configured correctly.\nTo create the Conda environment for this manual, you’ll need an environment.yml file that specifies the required software and their versions. Here’s an example:\nAfter the environment has been created, you need to activate it before you can use the software installed within it. To activate the environment, run:\nstable_env_1 is the name of the Conda environment you created. When the environment is activated, you’ll see its name in parentheses at the beginning of your terminal prompt (stable_env_1). This indicates that you’re now working within the Conda environment.",
     "crumbs": [
       "<span class='chapter-number'>1</span>  <span class='chapter-title'>Preparation</span>"
     ]
@@ -24,7 +24,7 @@
     "href": "preparation.html#activating-the-correct-conda-software-environment",
     "title": "1  Preparation",
     "section": "",
-    "text": "conda activate {environment}\n\n{environment} is the name of your chosen conda environment.\n\n\n\n\n\n\n\nNote\n\n\n\nWe are now ready to start executing the code to perform quality control of our raw Illumina sequencing data in the next chapter.",
+    "text": "name: stable_env_1\nchannels:\n  - conda-forge\n  - https://repo.anaconda.com/pkgs/main\n  - https://repo.anaconda.com/pkgs/r\ndependencies:\n  - python=3.9\n  - bioconda::spades=3.15.4\n  - bioconda::samtools=1.3.1\n  - conda-forge::diamond=2.0.15\n  - bioconda::snakemake=7.32.4\n  - conda-forge::biopython=1.85\n  - bioconda::cd-hit-auxtools=4.8.1\n  - bioconda::fastp=0.22.0\n  - bioconda::bwa=0.7.18\n  - bioconda::seqkit=2.9.0\n\nCopy the Code: Copy the above text and save it to a file named environment.yml in your project directory.\nCreate the Environment: In your terminal, navigate to your project directory (where you saved the environment.yml file) and run the following command:\n\nconda env create -f environment.yml\n\nconda activate stable_env_1\n\n\n\n\n\n\n\nNote\n\n\n\nWe are now ready to start executing the code to perform quality control of our raw Illumina sequencing data in the next chapter.",
     "crumbs": [
       "<span class='chapter-number'>1</span>  <span class='chapter-title'>Preparation</span>"
     ]
@@ -224,7 +224,7 @@
     "href": "illumina_hpc.html",
     "title": "6  Automating data analysis",
     "section": "",
-    "text": "6.1 Preparing to run the workflow.\nWe can make use of a tool called Snakemake to automate the previous steps into a single pipeline. To set this up, you must create a tabular config file, which contains …\nThe tabular config file has the following structure:\n[insert tabular example file]\nNext, we need to create a place for your results to be stored. First check your current directory with the pwd command:\nChange your current directory using cd if needed:\nThen create the new directory using the mkdir command:\nThis creates a new directory at the current location. Move the sample_config.tsv file to the results directory using the mv (move) command:\nAfter preparing the results directory we have to make sure that we have activated the appropriate conda environment and check if the command line has (your_environment_name) in front.\nNext, run the ls command to list the files in the current directory and check if the InsertCorrectName.smk file is present. This is the “recipe” for the workflow, describing all the steps we have done by hand. (you can open the .smk file with a text editor and have a look).",
+    "text": "6.1 Preparing to run the workflow.\nIn the previous chapters, you learned how to perform each step of the metagenomic data analysis pipeline manually. While this is a valuable learning experience, it’s not practical for analyzing large datasets or for ensuring reproducibility in the long term.\nWe can make use of a tool called Snakemake to automate the previous steps into a single pipeline. With Snakemake, you can define the steps of your analysis in a Snakefile and then let Snakemake handle the execution, dependency management, and error handling.\nTo run the automated workflow, you’ll need to make sure that your project directory is set up correctly and that you have the necessary Conda environment activated.\nIn the command line, navigate to your project directory. First check your current directory with the pwd command:\nChange your current directory using cd if needed:\nNext, run the ls command to list the files in the current directory and check if the illumina_snakemake.smk file is present. This is the “recipe” for the workflow, describing all the steps we have done by hand, and it is most commonly placed in the root directory of your project (you can open the .smk file with a text editor and have a look).\nMake sure that we have activated the appropriate conda environment and check if the command line has (stable_env_1) in front.\nLastly, check the raw_data directory. Make sure that you have a raw_data/ directory in your project folder and that it contains your gzipped FASTQ files (e.g., sample1_R1_001.fastq.gz, sample1_R2_001.fastq.gz, etc).",
     "crumbs": [
       "<span class='chapter-number'>6</span>  <span class='chapter-title'>Automating data analysis</span>"
     ]
@@ -234,7 +234,7 @@
     "href": "illumina_hpc.html#preparing-to-run-the-workflow.",
     "title": "6  Automating data analysis",
     "section": "",
-    "text": "pwd\n\ncd /{folder1}/{folder2}\n\nmkdir results\n\nmv sample_config.tsv results\n\n\n\n\n\n\nTip\n\n\n\nIf you get a “file not found” error after changing your directory (cd) you may need to write the complete path of your sample_config.tsv file e.g mv /home/username/Documents/sample_config.tsv results",
+    "text": "pwd\n\ncd /{folder1}/{folder2} # Replace with the actual path to your project directory\n\n\nconda activate stable_env_1 # Replace environment name is needed",
     "crumbs": [
       "<span class='chapter-number'>6</span>  <span class='chapter-title'>Automating data analysis</span>"
     ]
@@ -244,7 +244,7 @@
     "href": "illumina_hpc.html#running-the-workflow",
     "title": "6  Automating data analysis",
     "section": "6.2 Running the workflow",
-    "text": "6.2 Running the workflow\nAfter setting everything up, we can redo the analysis for all samples in a single step. First we will test out a dry run to see if any errors appear. A dry run will not execute any of the commands but will instead display what would be done. This will help identify any errors in the Snakemake or config file.\nsnakemake \\\n--snakefile \\\nInsertCorrectName.smk \\\n--directory {ourdir} \\\n--configfile sample_config={config} \\\n--cores {threads}\n--dryrun\n\n{ourdir} is the directly we created.\n{config} is the tabular config file.\n\nIf no errors appear, then remove the --dryrun argument and run it again to fully execute the workflow.",
+    "text": "6.2 Running the workflow\nAfter setting everything up, we can redo the analysis for all samples in a single step. First we will test out a dry run to see if any errors appear. A dry run will not execute any of the commands but will instead display what would be done. This will help identify any errors in the Snakemake or config file.\nsnakemake \\\n--snakefile \\\nillumina_snakemake.smk \\\n--use-conda \\\n--cores {threads} \\\n--dryrun\nIf no errors appear, then remove the --dryrun argument and run it again to fully execute the workflow.",
     "crumbs": [
       "<span class='chapter-number'>6</span>  <span class='chapter-title'>Automating data analysis</span>"
     ]
