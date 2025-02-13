@@ -197,7 +197,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#decompressing-fastq" id="toc-decompressing-fastq" class="nav-link active" data-scroll-target="#decompressing-fastq"><span class="header-section-number">2.1</span> Decompressing FASTQ</a></li>
+  <li><a href="#merging-and-decompressing-fastq" id="toc-merging-and-decompressing-fastq" class="nav-link active" data-scroll-target="#merging-and-decompressing-fastq"><span class="header-section-number">2.1</span> Merging and decompressing FASTQ</a></li>
   <li><a href="#deduplicate-reads" id="toc-deduplicate-reads" class="nav-link" data-scroll-target="#deduplicate-reads"><span class="header-section-number">2.2</span> Deduplicate reads</a></li>
   <li><a href="#running-fastp-quality-control-software" id="toc-running-fastp-quality-control-software" class="nav-link" data-scroll-target="#running-fastp-quality-control-software"><span class="header-section-number">2.3</span> Running fastp quality control software</a></li>
   <li><a href="#host-filtering" id="toc-host-filtering" class="nav-link" data-scroll-target="#host-filtering"><span class="header-section-number">2.4</span> Host filtering</a></li>
@@ -255,9 +255,9 @@ Important!
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> log</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a subdirectory</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> results/assembly</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<section id="decompressing-fastq" class="level2" data-number="2.1">
-<h2 data-number="2.1" class="anchored" data-anchor-id="decompressing-fastq"><span class="header-section-number">2.1</span> Decompressing FASTQ</h2>
-<p>The first step is to decompress the raw FASTQ files. FASTQ files are often compressed using gzip to save disk space. We’ll use the zcat command to decompress them.</p>
+<section id="merging-and-decompressing-fastq" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="merging-and-decompressing-fastq"><span class="header-section-number">2.1</span> Merging and decompressing FASTQ</h2>
+<p>Any file in linux can be pasted to another file using the cat command. zcat in addition also unzips gzipped files (e.g.&nbsp;.fastq.gz extension). If your files are already unzipped, use cat instead.</p>
 <p><strong>Modify and run:</strong></p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> {input.folder}/{sample}_R1_001.fastq.gz <span class="op">&gt;</span> {output.folder}/{sample}_R1.fastq</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> {input.folder}/{sample}_R2_001.fastq.gz <span class="op">&gt;</span> {output.folder}/{sample}_R2.fastq</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>

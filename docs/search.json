@@ -34,14 +34,14 @@
     "href": "quality_control.html",
     "title": "2  Quality control",
     "section": "",
-    "text": "2.1 Decompressing FASTQ\nFor simplicity’s sake, most steps will be catered towards an analysis of a single sample. It is recommended to follow a basic file structure like the following below:\nWhen running any command that generates output files, it’s essential to ensure that the output directory exists before executing the command. While some tools will automatically create the output directory if it’s not present, this behavior is not guaranteed. If the output directory doesn’t exist and the tool doesn’t create it, the command will likely fail with an error message (or, worse, it might fail silently, leading to unexpected results).\nTo prevent a lot of future frustration, create your output directories beforehand with the mkdir command as such:\nThe first step is to decompress the raw FASTQ files. FASTQ files are often compressed using gzip to save disk space. We’ll use the zcat command to decompress them.\nModify and run:",
+    "text": "2.1 Merging and decompressing FASTQ\nFor simplicity’s sake, most steps will be catered towards an analysis of a single sample. It is recommended to follow a basic file structure like the following below:\nWhen running any command that generates output files, it’s essential to ensure that the output directory exists before executing the command. While some tools will automatically create the output directory if it’s not present, this behavior is not guaranteed. If the output directory doesn’t exist and the tool doesn’t create it, the command will likely fail with an error message (or, worse, it might fail silently, leading to unexpected results).\nTo prevent a lot of future frustration, create your output directories beforehand with the mkdir command as such:\nAny file in linux can be pasted to another file using the cat command. zcat in addition also unzips gzipped files (e.g. .fastq.gz extension). If your files are already unzipped, use cat instead.\nModify and run:",
     "crumbs": [
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>Quality control</span>"
     ]
   },
   {
-    "objectID": "quality_control.html#decompressing-fastq",
-    "href": "quality_control.html#decompressing-fastq",
+    "objectID": "quality_control.html#merging-and-decompressing-fastq",
+    "href": "quality_control.html#merging-and-decompressing-fastq",
     "title": "2  Quality control",
     "section": "",
     "text": "zcat {input.folder}/{sample}_R1_001.fastq.gz &gt; {output.folder}/{sample}_R1.fastq\nzcat {input.folder}/{sample}_R2_001.fastq.gz &gt; {output.folder}/{sample}_R2.fastq\n\n{input.folder} is where your raw .fastq.gz data is stored.\n{sample} is the name of your sample.\n{output.folder} is where your decompressed .fastq files will be stored.",
