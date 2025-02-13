@@ -32,7 +32,7 @@ Lastly, check the `raw_data` directory. Make sure that you have a `raw_data/` di
 
 ## Running the workflow
 
-After setting everything up, we can redo the analysis for all samples in a single step. First we will test out a dry run to see if any errors appear. A dry run will not execute any of the commands but will instead display what would be done. This will help identify any errors in the Snakemake or config file.
+After setting everything up, we can redo the analysis for all samples in a single step. First we will test out a dry run to see if any errors appear. A dry run will not execute any of the commands but will instead display what would be done. This will help identify any errors in the Snakemake file.
 
 ``` bash
 snakemake \
