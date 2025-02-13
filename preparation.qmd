@@ -35,9 +35,9 @@ dependencies:
   - bioconda::seqkit=2.9.0
 ```
 
-1.  Copy the Code: Copy the above text and save it to a file named environment.yml in your project directory.
+1.  Copy the above text and save it to a file named environment.yml in your project directory.
 
-2.  Create the Environment: In your terminal, navigate to your project directory (where you saved the environment.yml file) and run the following command:
+2.  In your terminal, navigate to your project directory (where you saved the environment.yml file) and create the Conda environment with the following command:
 
 ``` bash
 conda env create -f environment.yml
@@ -49,7 +49,7 @@ After the environment has been created, you need to activate it before you can u
 conda activate stable_env_1
 ```
 
-stable_env_1 is the name of the Conda environment you created. When the environment is activated, you'll see its name in parentheses at the beginning of your terminal prompt (stable_env_1). This indicates that you're now working within the Conda environment.
+`stable_env_1` is the name of the Conda environment you created. When the environment is activated, you'll see its name in parentheses at the beginning of your terminal prompt (stable_env_1). This indicates that you're now working within the Conda environment.
 
 ::: callout-note
 We are now ready to start executing the code to perform quality control of our raw Illumina sequencing data in the next chapter.
