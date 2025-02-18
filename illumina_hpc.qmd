@@ -6,9 +6,27 @@ We can make use of a tool called [Snakemake](https://snakemake.readthedocs.io/en
 
 ## Preparing to run the workflow.
 
-To run the automated workflow, you'll need to make sure that your project directory is set up correctly and that you have the necessary Conda environment activated.
+To run the automated workflow, you'll need to make sure that your project directory is set up correctly and that you have activated the necessary Conda environment.
 
-In the command line, navigate to your project directory. First check your current directory with the pwd command:
+To make the project setup process even easier, we've created a command-line tool called `prepare_project.py`. This tool automates the creation of the project directory, the sample configuration file (`sample.tsv`), and the general settings configuration file (`config.yaml`), guiding you through each step with clear prompts and error checking. 
+
+To proceed, make sure to activate the appropriate conda environment and check if the command line has `(stable_env_1)` in front.
+
+``` bash
+conda activate stable_env_1 # Replace environment name is needed
+```
+
+Run prepare_project.py with Python as follows:
+
+``` bash
+python prepare_project.py -n {name} -p {project.folder} -r {reads}
+```
+
+-   `{name}` is the name of your study, no spaces allowed.
+-   `{project.folder}` is your project folder.
+-   `{reads}` is the folder that contains your raw .fastq.gz files.
+
+Now, move to your project directory. First check your current directory with the `pwd` command:
 
 ``` bash
 pwd
@@ -20,24 +38,24 @@ Change your current directory using cd if needed:
 cd /{folder1}/{folder2} # Replace with the actual path to your project directory
 ```
 
-Next, run the `ls` command to list the files in the current directory and check if the `illumina_snakemake.smk` file is present. This is the "recipe" for the workflow, describing all the steps we have done by hand, and it is most commonly placed in the root directory of your project (you can open the `.smk` file with a text editor and have a look).
+Next, use the `ls` command to list the files in the project directory and check if the following files are present: `sample.tsv`, `config.yaml` and `Snakefile`.
 
-Make sure that we have activated the appropriate conda environment and check if the command line has `(stable_env_1)` in front.
+-   The sample.tsv should have 3 columns: sample (sample name), fq1 and fq2 (paths to raw read files).
 
-``` bash
-conda activate stable_env_1 # Replace environment name is needed
-```
+-   The config.yaml contains more general information like the reference, database and taxonmap you supplied as well as the amount of default threads to use.
 
-Lastly, check the `raw_data` directory. Make sure that you have a `raw_data/` directory in your project folder and that it contains your gzipped FASTQ files (e.g., `sample1_R1_001.fastq.gz`, `sample1_R2_001.fastq.gz`, etc).
+-   The Snakefile is the "recipe" for the workflow, describing all the steps we have done by hand, and it is most commonly placed in the root directory of your project (you can open the Snakefile with a text editor and have a look).
 
 ## Running the workflow
 
 After setting everything up, we can redo the analysis for all samples in a single step. First we will test out a dry run to see if any errors appear. A dry run will not execute any of the commands but will instead display what would be done. This will help identify any errors in the Snakemake file.
 
+Run inside of your project directory:
+
 ``` bash
 snakemake \
 --snakefile \
-illumina_snakemake.smk \
+Snakefile \
 --use-conda \
 --cores {threads} \
 --dryrun
