@@ -1,0 +1,252 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Illumina metagenomic data analysis",
+    "section": "",
+    "text": "Introduction\nWelcome to the Illumina metagenomic data analysis manual. This manual contains a step by step guide for performing quality control, filtering host sequences, assembling reads into contigs, annotating the contigs, and then extracing viral contigs and their corresponding reads. In the final chapter of the manual we will show how to automate all of these steps into a single pipeline for speed and convenience.",
+    "crumbs": [
+      "Introduction"
+    ]
+  },
+  {
+    "objectID": "preparation.html",
+    "href": "preparation.html",
+    "title": "1  Preparation",
+    "section": "",
+    "text": "1.1 Activating the correct conda software environment\nAnaconda is a software management tool that can be used for creating specific environments where bioinformatics software can be installed in Linux, as it manages all the dependencies of different softwares for you. We will use Conda to create a dedicated environment for this manual’s workflow, ensuring that all required tools are installed and configured correctly.\nTo create the Conda environment for this manual, you’ll need an environment.yml file that specifies the required software and their versions. Here’s an example:\nAfter the environment has been created, you need to activate it before you can use the software installed within it. To activate the environment, run:\nstable_env_1 is the name of the Conda environment you created. When the environment is activated, you’ll see its name in parentheses at the beginning of your terminal prompt (stable_env_1). This indicates that you’re now working within the Conda environment.",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Preparation</span>"
+    ]
+  },
+  {
+    "objectID": "preparation.html#activating-the-correct-conda-software-environment",
+    "href": "preparation.html#activating-the-correct-conda-software-environment",
+    "title": "1  Preparation",
+    "section": "",
+    "text": "name: stable_env_1\nchannels:\n  - conda-forge\n  - https://repo.anaconda.com/pkgs/main\n  - https://repo.anaconda.com/pkgs/r\ndependencies:\n  - python=3.9\n  - bioconda::spades=3.15.4\n  - bioconda::samtools=1.3.1\n  - conda-forge::diamond=2.0.15\n  - bioconda::snakemake=7.32.4\n  - conda-forge::biopython=1.85\n  - bioconda::cd-hit-auxtools=4.8.1\n  - bioconda::fastp=0.22.0\n  - bioconda::bwa=0.7.18\n  - bioconda::seqkit=2.9.0\n\nCopy the above text and save it to a file named environment.yml in your project directory.\nIn your terminal, navigate to your project directory (where you saved the environment.yml file) and create the Conda environment with the following command:\n\nconda env create -f environment.yml\n\nconda activate stable_env_1\n\n\n\n\n\n\n\nNote\n\n\n\nWe are now ready to start executing the code to perform quality control of our raw Illumina sequencing data in the next chapter.",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Preparation</span>"
+    ]
+  },
+  {
+    "objectID": "quality_control.html",
+    "href": "quality_control.html",
+    "title": "2  Quality control",
+    "section": "",
+    "text": "2.1 Merging and decompressing FASTQ\nFor simplicity’s sake, most steps will be geared towards an analysis of a single sample. It is recommended to follow a basic file structure like the following below:\nWhen running any command that generates output files, it’s essential to ensure that the output directory exists before executing the command. While some tools will automatically create the output directory if it’s not present, this behavior is not guaranteed. If the output directory doesn’t exist and the tool doesn’t create it, the command will likely fail with an error message (or, worse, it might fail silently, leading to unexpected results).\nTo prevent a lot of future frustration, create your output directories beforehand with the mkdir command as such:\nAny file in linux can be pasted to another file using the cat command. zcat in addition also unzips gzipped files (e.g. .fastq.gz extension). If your files are already unzipped, use cat instead.\nModify and run:",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Quality control</span>"
+    ]
+  },
+  {
+    "objectID": "quality_control.html#merging-and-decompressing-fastq",
+    "href": "quality_control.html#merging-and-decompressing-fastq",
+    "title": "2  Quality control",
+    "section": "",
+    "text": "zcat {input.folder}/{sample}_R1_001.fastq.gz &gt; {output.folder}/{sample}_R1.fastq\nzcat {input.folder}/{sample}_R2_001.fastq.gz &gt; {output.folder}/{sample}_R2.fastq\n\n{input.folder} is where your raw .fastq.gz data is stored.\n{sample} is the name of your sample.\n{output.folder} is where your decompressed .fastq files will be stored.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Quality control</span>"
+    ]
+  },
+  {
+    "objectID": "quality_control.html#deduplicate-reads",
+    "href": "quality_control.html#deduplicate-reads",
+    "title": "2  Quality control",
+    "section": "2.2 Deduplicate reads",
+    "text": "2.2 Deduplicate reads\nThis step removes duplicate reads from the uncompressed FASTQ files. Duplicate reads can arise during PCR amplification or sequencing and can skew downstream analyses. We’ll use the cd-hit-dup program to identify and remove these duplicates.\nAfter cd-hit-dup command is finished, we’ll remove the .clstr file that cd-hit-dup creates. This file contains information about the clusters of duplicate reads, but it’s not needed for downstream analysis, so we can safely remove it to save disk space.\ncd-hit-dup -u 50 -i {input.R1} -i2 {input.R2} -o {output.R1} -o2 {output.R2} &gt; {logs}/{sample}_cd-hit.log 2&gt;&1\n\nrm {output.dir}/*.clstr\n\n{input.R1} and {input.R2} are the decompressed R1 and R2 reads from step 2.1.\n{output.R1} and {output.R2} are your deduplicated .fastq reads. Think of where you want to store your results, something like results/dedup/ will be sufficient, so output.R1 turns into result/dedup/SampleName_R1.fastq, etc.\n{output.dir} This should be pointed to wherever your deduplicated reads are stored.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Quality control</span>"
+    ]
+  },
+  {
+    "objectID": "quality_control.html#running-fastp-quality-control-software",
+    "href": "quality_control.html#running-fastp-quality-control-software",
+    "title": "2  Quality control",
+    "section": "2.3 Running fastp quality control software",
+    "text": "2.3 Running fastp quality control software\nThe fastp software is a very fast multipurpose quality control software to perform quality and sequence adapter trimming for Illumina short-read and Nanopore long-read data.\nRun and modify:\nfastp -i {input.R1} -I {input.R2} \\\n-o {output.R1} -O {output.R2} \\\n--unpaired1 {output.S} --unpaired2 {output.S} --failed_out {output.failed} \\\n--length_required 50 \\\n--low_complexity_filter \\\n--cut_right \\\n--cut_right_window_size 5 \\\n--cut_right_mean_quality 25 \\\n--thread {threads} \\\n-j {output.J}/qc_report.json -h {output.H}/qc_report.html &gt; {log} 2&gt;&1\n\n{input.R1} and {input.R2} are the reads belonging to the deduplicated sample step 2.2.\n{output.R1} and {output.R2} are the the quality controlled .fastq filenames.\n{output.S} –unpaired1 and –unpaired2 tells fastp to write unpaired reads to a .fastq file. In our case, we write unpaired reads (whether they originated from the R1 or R2 file) to the same file, output.S.\n{output.failed} .fastq file that stores reads (either merged or unmerged) which failed the quality filters\n{sample} is the name of your sample.\n{output.J} is the directory for the json report file\n{output.H} is the directory for the html report file\n{log} is the directory for log files.\n\n\n\n\n\n\n\nNote\n\n\n\n{threads} is a recurring setting for the number of CPUs to use for the processing. On a laptop this will be less (e.g. 8), on an HPC you may be able to use 64 or more CPUs for processing. However, how much performance increase you get depends on the software.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Quality control</span>"
+    ]
+  },
+  {
+    "objectID": "quality_control.html#host-filtering",
+    "href": "quality_control.html#host-filtering",
+    "title": "2  Quality control",
+    "section": "2.4 Host filtering",
+    "text": "2.4 Host filtering\nThis step removes reads that map to a host genome (e.g., human). This is important if you’re studying metagenomes from a host-associated environment (e.g., gut microbiome, skin surface).\nTo improve computational speed and reduce memory usage, it is required to index your reference sequence before proceeding to the host filtering step.\n# Index reference genome\nbwa index {reference}\n\n# Host filtering\nbwa mem -aY -t {threads} {reference} {input.R1} {input.R2} | \\\nsamtools fastq -f 4 -s /dev/null -1 {output.R1} -2 {output.R2} -\nbwa mem -aY -t {threads} {reference}  {input.S} | \\\nsamtools fastq -f 4 - &gt; {output.S}\n\n{input.R1} and {input.R2} are QC-filtered FASTQ files from step 2.3.\n{output.R1} and {output.R2} are FASTQ files (R1, R2) containing reads that did not map to the host genome.\n{input.S} are singleton reads from the previous step (output.S).\n{reference} is a reference genome sequence.\n\n\n\n\n\n\n\nNote\n\n\n\nWe now have our quality controlled sequence reads which we can use to create an assembly in the next chapter.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Quality control</span>"
+    ]
+  },
+  {
+    "objectID": "assembly.html",
+    "href": "assembly.html",
+    "title": "3  De novo assembly",
+    "section": "",
+    "text": "3.1 metaSPades\nWe will perform de novo assembly of the host-filtered reads to create contigs (longer, assembled sequences) with SPades.\nThe if [[ $COUNT -gt 0 ]] condition checks if singleton reads are present. If so, we will include them with the -s option in the spades.py command",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>De novo assembly</span>"
+    ]
+  },
+  {
+    "objectID": "assembly.html#metaspades",
+    "href": "assembly.html#metaspades",
+    "title": "3  De novo assembly",
+    "section": "",
+    "text": "COUNT=$(cat {input.S} | wc -l)\nif [[ $COUNT -gt 0 ]]\nthen\n    spades.py -t {threads} \\\n    --meta \\\n    -o {output} \\\n    -1 {input.R1} \\\n    -2 {input.R2} \\\n    -s {input.S} &gt; {log} 2&gt;&1\nelse\n    spades.py -t {threads} \\\n    --meta \\\n    -o {output} \\\n    -1 {input.R1} \\\n    -2 {input.R2} &gt; {log} 2&gt;&1\nfi    \n\n\n{input.R1}, {input.R2} and {input.S} are host-filtered FASTQ files (R1, R2, and S) from step 2.3.\n{output} defines the directory where the assembly results will be stored.\n{log} specifies the log directory.",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>De novo assembly</span>"
+    ]
+  },
+  {
+    "objectID": "assembly.html#renaming-contigs",
+    "href": "assembly.html#renaming-contigs",
+    "title": "3  De novo assembly",
+    "section": "3.2 Renaming contigs:",
+    "text": "3.2 Renaming contigs:\nWe will add sample names to the beginning of each contig name. This will make sure that each sample’s contig names are unique before we start aggregating contigs. If you are only dealing with a single sample, then this step can be seen as optional.\nseqkit replace -p \"^\" -r \"{sample}_\" {input} &gt; {output}\n\n{sample} is the sample name that will be placed in front of the contig name\n{input} is your contig file from step 3.1\n{output} is fasta file with the renamed contig",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>De novo assembly</span>"
+    ]
+  },
+  {
+    "objectID": "assembly.html#aggregating-contigs",
+    "href": "assembly.html#aggregating-contigs",
+    "title": "3  De novo assembly",
+    "section": "3.3 Aggregating contigs:",
+    "text": "3.3 Aggregating contigs:\nNext we will combine all renamed contigs into a single fasta file so we can perform taxonomic annotation across all samples in one go. Once again, this step can be seen as optional if you have a single sample.\ncat {input} &gt; {output}\n\n{input} are your renamed contig files from step 3.2\n{output} a single .fasta file\n\n\n\n\n\n\n\nNote\n\n\n\nWe have created contigs that are ready for taxonomic annotation in the next chapter.",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>De novo assembly</span>"
+    ]
+  },
+  {
+    "objectID": "annotation.html",
+    "href": "annotation.html",
+    "title": "4  Taxonomic classification",
+    "section": "",
+    "text": "4.1 Diamond\nNow we will annotate the aggregated contigs by assigning taxonomic classifications to them based on sequence similarity to known proteins in a database using diamond blastx.\nThe -f 6 parameter will ensure the output is in a tabular format. The 6 may be followed by a space-separated list of various keywords, each specifying a field of the output. For a full description of the output, please visit here.\nMultiple different databases and taxomaps can be found in: \\\\cifs.research.erasmusmc.nl\\viro0002\\workgroups_projects\\Bioinformatics\\DB",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Taxonomic classification</span>"
+    ]
+  },
+  {
+    "objectID": "annotation.html#diamond",
+    "href": "annotation.html#diamond",
+    "title": "4  Taxonomic classification",
+    "section": "",
+    "text": "diamond blastx \\\n-q {input} \\\n-d {db} \\\n-o {output} \\\n-f 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore staxids \\\n--taxonmap {tx} \\\n--threads {threads} \\\n-b 10 -c 1 &gt; {log} 2&gt;&1\n\n{input} is the contig file created in either step 3.3 or step 3.1, depending on your amount of samples.\n{db} is the protein database to be searched against.\n{output} is a .tsv file containing the annotation results.\n{tx} is a mapping file to convert protein accessions to taxonomic IDs.\n{log} is the log directory.",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Taxonomic classification</span>"
+    ]
+  },
+  {
+    "objectID": "annotation.html#split-annotation-files",
+    "href": "annotation.html#split-annotation-files",
+    "title": "4  Taxonomic classification",
+    "section": "4.2 Split annotation files",
+    "text": "4.2 Split annotation files\nWe will split the combined annotation file back into individual annotation files for each sample. This step can be seen as optional if you are dealing with a single sample.\nModify and run:\nmkdir -p tmp_split\n\nsed 's/_NODE/|NODE/' {input} | awk -F'|' '{\n    identifier = $1;  # Construct the identifier using the first two fields\n\n    output_file = \"tmp_split/\" identifier;  # Construct the output filename\n\n    if (!seen[identifier]++) {\n        close(output_file);  # Close the previous file (if any)\n        output = output_file;  # Update the current output file\n    }\n\n    print $2 &gt; output;  # Append the line to the appropriate output file\n}'\n\nfor file in tmp_split/*; do\n    mkdir -p {output}/$(basename \"$file\")/;\n    mv \"$file\" {output}/$(basename \"$file\")/diamond_output.tsv;\ndone\n\nrmdir tmp_split\n\n{input} is the combined annotation file from step 4.1.\n{output} is a directory path. This directory will be automatically filled with subdirectories for each sample. In each subdirectory you will find a diamond_out.tsv file.",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Taxonomic classification</span>"
+    ]
+  },
+  {
+    "objectID": "annotation.html#parsing-diamond-output",
+    "href": "annotation.html#parsing-diamond-output",
+    "title": "4  Taxonomic classification",
+    "section": "4.3 Parsing diamond output",
+    "text": "4.3 Parsing diamond output\nNow we will process the DIAMOND output files with a custom Python script called post_process_diamond.py. This script will further enrich taxonomic information for each contig based on the DIAMOND alignment results. If a contig has multiple matches in the database, it will select the best hit based on a combined score of bitscore and length. Lastly, it separates the contigs into two lists: those that were successfully annotated and unannotated.\nThis python script utilizes the biopython library.\npython /mnt/viro0002/workgroups_projects/Bioinformatics/scripts/post_process_diamond.py \\\n-i {input.annotation} \\\n-c {input.contigs} \\\n-o {output.annotated} \\\n-u {output.unannotated} \\\n-log {log}\n\n{input.annotation} is the annotation file step 4.2.\n{input.contigs} are the contigs from the SPAdes step 3.1.\n{output.annotated} is a .tsv file with a set of annotated contigs.\n{output.unannotated} is a .tsv file with a set of unannotated contig IDs.\n{log} is the log directory.\n\n\n\n\n\n\n\nNote\n\n\n\nWe can now move on to the final steps where we will create various files needed for downstream analysis.",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Taxonomic classification</span>"
+    ]
+  },
+  {
+    "objectID": "parse_annotation.html",
+    "href": "parse_annotation.html",
+    "title": "5  Extracting Viral Sequences and Analyzing Mapped Reads",
+    "section": "",
+    "text": "5.1 Extract viral annotations\nWe will conclude the pipeline with various steps which will create valuable data files for further downstream analysis.\nA basic grep command can be used to extract contigs that have been annotated as viral from the annotation file in step 4.3.",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Extracting Viral Sequences and Analyzing Mapped Reads</span>"
+    ]
+  },
+  {
+    "objectID": "parse_annotation.html#extract-viral-annotations",
+    "href": "parse_annotation.html#extract-viral-annotations",
+    "title": "5  Extracting Viral Sequences and Analyzing Mapped Reads",
+    "section": "",
+    "text": "grep \"Viruses$\" {input.annotated} &gt; {output.viral} || touch {output.viral}\n\n{input.annotated} is the annotation file from step 4.3.\n{output.viral} contains all of your viral contigs.",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Extracting Viral Sequences and Analyzing Mapped Reads</span>"
+    ]
+  },
+  {
+    "objectID": "parse_annotation.html#mapping-reads-to-contigs",
+    "href": "parse_annotation.html#mapping-reads-to-contigs",
+    "title": "5  Extracting Viral Sequences and Analyzing Mapped Reads",
+    "section": "5.2 Mapping reads to contigs",
+    "text": "5.2 Mapping reads to contigs\nWe can map the quality-filtered and host-filtered reads back to the assembled contigs to quantify the abundance of different contigs in each sample. We will create a mapping file for paired reads (R1 and R2) and singletons (S) and then merge these two files together.\nbwa index {input.contigs}\nbwa mem -Y -t {threads} {input.contigs} {input.R1} {input.R2} | samtools sort - &gt; {output.paired}/tmp_paired.bam\nbwa mem -Y -t {threads} {input.contigs} {input.S} | samtools sort - &gt; {output.S}/tmp_singlets.bam\nsamtools merge {output.merged}/contigs.bam {output.paired}/tmp_paired.bam {output.S}/tmp_singlets.bam\nrm {output.paired}/tmp_paired.bam {output.S}/tmp_singlets.bam\n\n{input.contigs} contains the assembled contigs from step 3.1.\n{input.R1}, {input.R2} and {input.S} are the quality controlled and host-filtered reads from step 2.4.\n{output.paired} is the directory for the .bam mapping file based on paired reads.\n{output.S} is the directory for the .bam mapping file based on singleton reads.\n{output.merged} is the directory for the merged .bam file.",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Extracting Viral Sequences and Analyzing Mapped Reads</span>"
+    ]
+  },
+  {
+    "objectID": "parse_annotation.html#extract-mapped-reads",
+    "href": "parse_annotation.html#extract-mapped-reads",
+    "title": "5  Extracting Viral Sequences and Analyzing Mapped Reads",
+    "section": "5.3 Extract mapped reads",
+    "text": "5.3 Extract mapped reads\nWe will extract the reads for each annotation file that we’ve created.\n#Create temporary BED file to extract the annotated mappings from the BAM of all mappings\ncut -f1 {input.annotated} | awk -F'_' '{{print $0 \"\\t\" 0 \"\\t\" $4}}' &gt; {output}/tmp.bed\nsamtools view -bL {output}/tmp.bed {input.mapped} &gt; {output.annotated}\n      \n#Do the same for the unannotated contigs\ncut -f1 {input.unannotated} | awk -F'_' '{{print $0 \"\\t\" 0 \"\\t\" $4}}' &gt; {output}/tmp.bed\nsamtools view -bL {output}/tmp.bed {input.mapped} &gt; {output.unannotated}\n\n#Do the same for the viral contigs\ncut -f1 {input.viral} | awk -F'_' '{{print $0 \"\\t\" 0 \"\\t\" $4}}' &gt; {output}/tmp.bed\nsamtools view -bL {output}/tmp.bed {input.mapped} &gt; {output.viral}\n\nrm {output}/tmp.bed\n\n{input.annotated}, {input.unannotated} and {input.viral} are the .tsv annotation files from step 4.3 and 5.1.\n{input.mapped} is the combined .bam file from step 5.2.\n{output} is a folder where temporary .bed files will be stored.\n{output.annotated}, {output.unannotated} and {output.viral} are .bam files for each annotation input.",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Extracting Viral Sequences and Analyzing Mapped Reads</span>"
+    ]
+  },
+  {
+    "objectID": "parse_annotation.html#count-mapped-reads",
+    "href": "parse_annotation.html#count-mapped-reads",
+    "title": "5  Extracting Viral Sequences and Analyzing Mapped Reads",
+    "section": "5.4 Count mapped reads",
+    "text": "5.4 Count mapped reads\nNext we count the number of reads that mapped to each contig in the annotated, unannotated, and viral BAM files.\nsamtools view -bF2052 {input.annotated} | seqkit bam -Qc - | awk '$2 != 0 {{print}}' &gt; {output.annotated}\nsamtools view -bF2052 {input.unannotated} | seqkit bam -Qc - | awk '$2 != 0 {{print}}' &gt; {output.unannotated}\nsamtools view -bF2052 {input.viral} | seqkit bam -Qc - | awk '$2 != 0 {{print}}' &gt; {output.viral}\n\n{input.annotated}, {input.unannotated} and {input.viral} are the .bam output files from step 5.3.\n{output.annotated}, {output.unannotated} and {output.viral} are .tsv files containing the read counts for each .bam file",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Extracting Viral Sequences and Analyzing Mapped Reads</span>"
+    ]
+  },
+  {
+    "objectID": "parse_annotation.html#extract-contigs",
+    "href": "parse_annotation.html#extract-contigs",
+    "title": "5  Extracting Viral Sequences and Analyzing Mapped Reads",
+    "section": "5.5 Extract contigs",
+    "text": "5.5 Extract contigs\nLastly, we will extract contigs for the annotated, unannotated and viral contigs.\nseqkit grep -f &lt;(cut -f1 {input.annotated}) {input.contigs} &gt; {output.annotated}\nseqkit grep -f &lt;(cut -f1 {input.unannotated}) {input.contigs} &gt; {output.unannotated}\nseqkit grep -f &lt;(cut -f1 {input.viral}) {input.contigs} &gt; {output.viral}\n\n{input.annotated}, {input.unannotated} and {input.viral} are .tsv annotation files from steps 4.3 and 5.1.\n{input.contigs} is the .fasta file containing all contigs for a sample from step 3.1.\n{output.annotated}, {output.unannotated} and {output.viral} are .fasta files containing the contigs.\n\n\n\n\n\n\n\nNote\n\n\n\nYou can now move to the final chapter to automate all of the steps we’ve previously discussed.",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Extracting Viral Sequences and Analyzing Mapped Reads</span>"
+    ]
+  },
+  {
+    "objectID": "illumina_hpc.html",
+    "href": "illumina_hpc.html",
+    "title": "6  Automating data analysis",
+    "section": "",
+    "text": "6.1 Preparing to run the workflow.\nIn the previous chapters, you learned how to perform each step of the metagenomic data analysis pipeline manually. While this is a valuable learning experience, it’s not practical for analyzing large datasets or for ensuring reproducibility in the long term.\nWe can make use of a tool called Snakemake to automate the previous steps into a single pipeline. With Snakemake, you can define the steps of your analysis in a Snakefile and then let Snakemake handle the execution, dependency management, and error handling.\nTo run the automated workflow, you’ll need to make sure that your project directory is set up correctly and that you have activated the necessary Conda environment.\nTo make the project setup process even easier, we’ve created a command-line tool called prepare_project.py. This tool automates the creation of the project directory, the sample configuration file (sample.tsv), and the general settings configuration file (config.yaml), guiding you through each step with clear prompts and error checking.\nTo proceed, make sure to activate the appropriate conda environment and check if the command line has (stable_env_1) in front.\nRun prepare_project.py with Python as follows:\nNow, move to your project directory. First check your current directory with the pwd command:\nChange your current directory using cd if needed:\nNext, use the ls command to list the files in the project directory and check if the following files are present: sample.tsv, config.yaml and Snakefile.",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Automating data analysis</span>"
+    ]
+  },
+  {
+    "objectID": "illumina_hpc.html#preparing-to-run-the-workflow.",
+    "href": "illumina_hpc.html#preparing-to-run-the-workflow.",
+    "title": "6  Automating data analysis",
+    "section": "",
+    "text": "conda activate stable_env_1 # Replace environment name is needed\n\npython prepare_project.py -n {name} -p {project.folder} -r {reads}\n\n{name} is the name of your study, no spaces allowed.\n{project.folder} is your project folder.\n{reads} is the folder that contains your raw .fastq.gz files.\n\n\npwd\n\ncd /{folder1}/{folder2} # Replace with the actual path to your project directory\n\n\nThe sample.tsv should have 3 columns: sample (sample name), fq1 and fq2 (paths to raw read files).\nThe config.yaml contains more general information like the reference, database and taxonmap you supplied as well as the amount of default threads to use.\nThe Snakefile is the “recipe” for the workflow, describing all the steps we have done by hand, and it is most commonly placed in the root directory of your project (you can open the Snakefile with a text editor and have a look).",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Automating data analysis</span>"
+    ]
+  },
+  {
+    "objectID": "illumina_hpc.html#running-the-workflow",
+    "href": "illumina_hpc.html#running-the-workflow",
+    "title": "6  Automating data analysis",
+    "section": "6.2 Running the workflow",
+    "text": "6.2 Running the workflow\nAfter setting everything up, we can redo the analysis for all samples in a single step. First we will test out a dry run to see if any errors appear. A dry run will not execute any of the commands but will instead display what would be done. This will help identify any errors in the Snakemake file.\nRun inside of your project directory:\nsnakemake \\\n--snakefile \\\nSnakefile \\\n--use-conda \\\n--cores {threads} \\\n--dryrun\nIf no errors appear, then remove the --dryrun argument and run it again to fully execute the workflow.",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Automating data analysis</span>"
+    ]
+  }
+]
