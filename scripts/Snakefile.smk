@@ -187,7 +187,6 @@ rule annotate_contigs:
         -d {params.database} \
         -o {output} \
         -f 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore staxids \
-        --taxonmap {params.taxonmap} \
         --threads {threads} \
         -b 10 -c 1 > {log} 2>&1
         """
