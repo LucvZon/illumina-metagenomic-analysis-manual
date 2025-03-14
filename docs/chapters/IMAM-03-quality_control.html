@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>6&nbsp; Automating data analysis – Illumina metagenomic data analysis</title>
+<title>2&nbsp; Quality control – Illumina metagenomic data analysis</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -57,25 +57,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<link href="./parse_annotation.html" rel="prev">
-<script src="site_libs/quarto-html/quarto.js"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-8ea72dc5fed832574809a9c94082fbbb.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-d5d78c9e45e9a5253a6059031ce5ea1b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark-fdf964b8551a4c1da979a829183e41b0.min.css" rel="prefetch" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/IMAM-04-assembly.html" rel="next">
+<link href="../chapters/IMAM-02-preparation.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-8ea72dc5fed832574809a9c94082fbbb.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-d5d78c9e45e9a5253a6059031ce5ea1b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-fdf964b8551a4c1da979a829183e41b0.min.css" rel="prefetch" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -116,7 +117,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./illumina_hpc.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Automating data analysis</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/IMAM-03-quality_control.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Quality control</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -131,7 +132,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="./">Illumina metagenomic data analysis</a> 
+      <a href="../">Illumina metagenomic data analysis</a> 
         <div class="sidebar-tools-main">
   <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
 </div>
@@ -146,43 +147,43 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link">
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Introduction</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./preparation.html" class="sidebar-item-text sidebar-link">
+  <a href="../chapters/IMAM-02-preparation.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Preparation</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./quality_control.html" class="sidebar-item-text sidebar-link">
+  <a href="../chapters/IMAM-03-quality_control.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Quality control</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./assembly.html" class="sidebar-item-text sidebar-link">
+  <a href="../chapters/IMAM-04-assembly.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">De novo assembly</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./annotation.html" class="sidebar-item-text sidebar-link">
+  <a href="../chapters/IMAM-05-annotation.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Taxonomic classification</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./parse_annotation.html" class="sidebar-item-text sidebar-link">
+  <a href="../chapters/IMAM-06-parse_annotation.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Extracting Viral Sequences and Analyzing Mapped Reads</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./illumina_hpc.html" class="sidebar-item-text sidebar-link active">
+  <a href="../chapters/IMAM-07-illumina_hpc.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Automating data analysis</span></span></a>
   </div>
 </li>
@@ -196,8 +197,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#preparing-to-run-the-workflow." id="toc-preparing-to-run-the-workflow." class="nav-link active" data-scroll-target="#preparing-to-run-the-workflow."><span class="header-section-number">6.1</span> Preparing to run the workflow.</a></li>
-  <li><a href="#running-the-workflow" id="toc-running-the-workflow" class="nav-link" data-scroll-target="#running-the-workflow"><span class="header-section-number">6.2</span> Running the workflow</a></li>
+  <li><a href="#merging-and-decompressing-fastq" id="toc-merging-and-decompressing-fastq" class="nav-link active" data-scroll-target="#merging-and-decompressing-fastq"><span class="header-section-number">2.1</span> Merging and decompressing FASTQ</a></li>
+  <li><a href="#deduplicate-reads" id="toc-deduplicate-reads" class="nav-link" data-scroll-target="#deduplicate-reads"><span class="header-section-number">2.2</span> Deduplicate reads</a></li>
+  <li><a href="#running-fastp-quality-control-software" id="toc-running-fastp-quality-control-software" class="nav-link" data-scroll-target="#running-fastp-quality-control-software"><span class="header-section-number">2.3</span> Running fastp quality control software</a></li>
+  <li><a href="#host-filtering" id="toc-host-filtering" class="nav-link" data-scroll-target="#host-filtering"><span class="header-section-number">2.4</span> Host filtering</a></li>
   </ul>
 </nav>
     </div>
@@ -206,7 +209,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Automating data analysis</span></h1>
+<h1 class="title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Quality control</span></h1>
 </div>
 
 
@@ -223,43 +226,128 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>In the previous chapters, you learned how to perform each step of the metagenomic data analysis pipeline manually. While this is a valuable learning experience, it’s not practical for analyzing large datasets or for ensuring reproducibility in the long term.</p>
-<p>We can make use of a tool called <a href="https://snakemake.readthedocs.io/en/stable/">Snakemake</a> to automate the previous steps into a single pipeline. With Snakemake, you can define the steps of your analysis in a <code>Snakefile</code> and then let Snakemake handle the execution, dependency management, and error handling.</p>
-<section id="preparing-to-run-the-workflow." class="level2" data-number="6.1">
-<h2 data-number="6.1" class="anchored" data-anchor-id="preparing-to-run-the-workflow."><span class="header-section-number">6.1</span> Preparing to run the workflow.</h2>
-<p>To run the automated workflow, you’ll need to make sure that your project directory is set up correctly and that you have activated the necessary Conda environment.</p>
-<p>To make the project setup process even easier, we’ve created a command-line tool called <code>prepare_project.py</code>. This tool automates the creation of the project directory, the sample configuration file (<code>sample.tsv</code>), and the general settings configuration file (<code>config.yaml</code>), guiding you through each step with clear prompts and error checking.</p>
-<p>To proceed, make sure to activate the appropriate conda environment and check if the command line has <code>(stable_env_1)</code> in front.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> activate stable_env_1 <span class="co"># Replace environment name is needed</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Run prepare_project.py with Python as follows:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> prepare_project.py <span class="at">-n</span> {name} <span class="at">-p</span> {project.folder} <span class="at">-r</span> {reads}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important!
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In the next steps we are going to copy-paste code, adjust it to our needs, and execute it on the command-line.</p>
+<p><strong>Please open a plain text editor to paste the code from the next steps, to keep track of your progress!</strong></p>
+</div>
+</div>
+<p>For simplicity’s sake, most steps will be geared towards an analysis of a single sample. It is recommended to follow a basic file structure like the following below:</p>
+<pre><code>my_project/
+├── raw_data/          # Contains the raw, gzipped FASTQ files
+│   ├── sample1_R1_001.fastq.gz
+│   ├── sample1_R2_001.fastq.gz
+│   ├── sample2_R1_001.fastq.gz
+│   └── sample2_R2_001.fastq.gz
+└── results/           # This is where the output files will be stored
+└── log/               # This is where log files will be stored</code></pre>
+<p>When running any command that generates output files, it’s essential to ensure that the output directory exists <em>before</em> executing the command. While some tools will automatically create the output directory if it’s not present, this behavior is not guaranteed. If the output directory doesn’t exist and the tool doesn’t create it, the command will likely fail with an error message (or, worse, it might fail silently, leading to unexpected results).</p>
+<p>To prevent a lot of future frustration, create your output directories beforehand with the <code>mkdir</code> command as such:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> results</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> log</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a subdirectory</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> results/assembly</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="merging-and-decompressing-fastq" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="merging-and-decompressing-fastq"><span class="header-section-number">2.1</span> Merging and decompressing FASTQ</h2>
+<p>Any file in linux can be pasted to another file using the cat command. zcat in addition also unzips gzipped files (e.g.&nbsp;.fastq.gz extension). If your files are already unzipped, use cat instead.</p>
+<p><strong>Modify and run:</strong></p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> {input.folder}/{sample}_R1_001.fastq.gz <span class="op">&gt;</span> {output.folder}/{sample}_R1.fastq</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> {input.folder}/{sample}_R2_001.fastq.gz <span class="op">&gt;</span> {output.folder}/{sample}_R2.fastq</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
-<li><code>{name}</code> is the name of your study, no spaces allowed.</li>
-<li><code>{project.folder}</code> is your project folder.</li>
-<li><code>{reads}</code> is the folder that contains your raw .fastq.gz files.</li>
-</ul>
-<p>Now, move to your project directory. First check your current directory with the <code>pwd</code> command:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">pwd</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Change your current directory using cd if needed:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> /{folder1}/{folder2} <span class="co"># Replace with the actual path to your project directory</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Next, use the <code>ls</code> command to list the files in the project directory and check if the following files are present: <code>sample.tsv</code>, <code>config.yaml</code> and <code>Snakefile</code>.</p>
-<ul>
-<li><p>The sample.tsv should have 3 columns: sample (sample name), fq1 and fq2 (paths to raw read files).</p></li>
-<li><p>The config.yaml contains more general information like the reference, database and taxonmap you supplied as well as the amount of default threads to use.</p></li>
-<li><p>The Snakefile is the “recipe” for the workflow, describing all the steps we have done by hand, and it is most commonly placed in the root directory of your project (you can open the Snakefile with a text editor and have a look).</p></li>
+<li><code>{input.folder}</code> is where your raw .fastq.gz data is stored.</li>
+<li><code>{sample}</code> is the name of your sample.</li>
+<li><code>{output.folder}</code> is where your decompressed .fastq files will be stored.</li>
 </ul>
 </section>
-<section id="running-the-workflow" class="level2" data-number="6.2">
-<h2 data-number="6.2" class="anchored" data-anchor-id="running-the-workflow"><span class="header-section-number">6.2</span> Running the workflow</h2>
-<p>After setting everything up, we can redo the analysis for all samples in a single step. First we will test out a dry run to see if any errors appear. A dry run will not execute any of the commands but will instead display what would be done. This will help identify any errors in the Snakemake file.</p>
-<p>Run inside of your project directory:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">snakemake</span> <span class="dt">\</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>--snakefile <span class="dt">\</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>Snakefile <span class="dt">\</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>--use-conda <span class="dt">\</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>--cores {threads} <span class="dt">\</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>--dryrun</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>If no errors appear, then remove the <code>--dryrun</code> argument and run it again to fully execute the workflow.</p>
+<section id="deduplicate-reads" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="deduplicate-reads"><span class="header-section-number">2.2</span> Deduplicate reads</h2>
+<p>This step removes duplicate reads from the uncompressed FASTQ files. Duplicate reads can arise during PCR amplification or sequencing and can skew downstream analyses. We’ll use the cd-hit-dup program to identify and remove these duplicates.</p>
+<p>After cd-hit-dup command is finished, we’ll remove the .clstr file that cd-hit-dup creates. This file contains information about the clusters of duplicate reads, but it’s not needed for downstream analysis, so we can safely remove it to save disk space.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cd-hit-dup</span> <span class="at">-u</span> 50 <span class="at">-i</span> {input.R1} <span class="at">-i2</span> {input.R2} <span class="at">-o</span> {output.R1} <span class="at">-o2</span> {output.R2}</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> {output.dir}/<span class="pp">*</span>.clstr</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><code>{input.R1}</code> and <code>{input.R2}</code> are the decompressed R1 and R2 reads from <strong>step 2.1</strong>.</li>
+<li><code>{output.R1}</code> and <code>{output.R2}</code> are your deduplicated .fastq reads. Think of where you want to store your results, something like <code>results/dedup/</code> will be sufficient, so output.R1 turns into <code>result/dedup/SampleName_R1.fastq</code>, etc.</li>
+<li><code>{output.dir}</code> This should be pointed to wherever your deduplicated reads are stored.</li>
+</ul>
+</section>
+<section id="running-fastp-quality-control-software" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="running-fastp-quality-control-software"><span class="header-section-number">2.3</span> Running fastp quality control software</h2>
+<p>The <a href="https://github.com/OpenGene/fastp">fastp</a> software is a very fast multipurpose quality control software to perform quality and sequence adapter trimming for Illumina short-read and Nanopore long-read data.</p>
+<p><strong>Run and modify:</strong></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">fastp</span> <span class="at">-i</span> {input.R1} <span class="at">-I</span> {input.R2} <span class="dt">\</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>-o {output.R1} <span class="at">-O</span> {output.R2} <span class="dt">\</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>--unpaired1 {output.S} <span class="at">--unpaired2</span> {output.S} <span class="at">--failed_out</span> {output.failed} <span class="dt">\</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>--length_required 50 <span class="dt">\</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>--low_complexity_filter <span class="dt">\</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>--cut_right <span class="dt">\</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>--cut_right_window_size 5 <span class="dt">\</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>--cut_right_mean_quality 25 <span class="dt">\</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>--thread {threads} <span class="dt">\</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>-j {output.J}/qc_report.json <span class="at">-h</span> {output.H}/qc_report.html</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><code>{input.R1}</code> and <code>{input.R2}</code> are the reads belonging to the deduplicated sample <strong>step 2.2</strong>.</li>
+<li><code>{output.R1}</code> and <code>{output.R2}</code> are the the quality controlled .fastq filenames.</li>
+<li><code>{output.S}</code> –unpaired1 and –unpaired2 tells fastp to write unpaired reads to a .fastq file. In our case, we write unpaired reads (whether they originated from the R1 or R2 file) to the same file, output.S.</li>
+<li><code>{output.failed}</code> .fastq file that stores reads (either merged or unmerged) which failed the quality filters</li>
+<li><code>{sample}</code> is the name of your sample.</li>
+<li><code>{output.J}</code> is the directory for the json report file</li>
+<li><code>{output.H}</code> is the directory for the html report file</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>{threads}</code> is a recurring setting for the number of CPUs to use for the processing. On a laptop this will be less (e.g.&nbsp;8), on an HPC you may be able to use 64 or more CPUs for processing. However, how much performance increase you get depends on the software.</p>
+</div>
+</div>
+</section>
+<section id="host-filtering" class="level2" data-number="2.4">
+<h2 data-number="2.4" class="anchored" data-anchor-id="host-filtering"><span class="header-section-number">2.4</span> Host filtering</h2>
+<p>This step removes reads that map to a host genome (e.g., human). This is important if you’re studying metagenomes from a host-associated environment (e.g., gut microbiome, skin surface).</p>
+<p>To improve computational speed and reduce memory usage, it is required to index your reference sequence before proceeding to the host filtering step.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Index reference genome</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">bwa</span> index {reference}</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Host filtering</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="ex">bwa</span> mem <span class="at">-aY</span> <span class="at">-t</span> {threads} {reference} {input.R1} {input.R2} <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="ex">samtools</span> fastq <span class="at">-f</span> 4 <span class="at">-s</span> /dev/null <span class="at">-1</span> {output.R1} <span class="at">-2</span> {output.R2} <span class="at">-</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="ex">bwa</span> mem <span class="at">-aY</span> <span class="at">-t</span> {threads} {reference}  {input.S} <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="ex">samtools</span> fastq <span class="at">-f</span> 4 <span class="at">-</span> <span class="op">&gt;</span> {output.S}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><code>{input.R1}</code> and <code>{input.R2}</code> are QC-filtered FASTQ files from <strong>step 2.3</strong>.</li>
+<li><code>{output.R1}</code> and <code>{output.R2}</code> are FASTQ files (R1, R2) containing reads that did not map to the host genome.</li>
+<li><code>{input.S}</code> are singleton reads from the previous step (output.S).</li>
+<li><code>{reference}</code> is a reference genome sequence.</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>We now have our quality controlled sequence reads which we can use to create an assembly in the next chapter.</p>
+</div>
+</div>
 
 
 </section>
@@ -828,11 +916,14 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./parse_annotation.html" class="pagination-link" aria-label="Extracting Viral Sequences and Analyzing Mapped Reads">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Extracting Viral Sequences and Analyzing Mapped Reads</span></span>
+      <a href="../chapters/IMAM-02-preparation.html" class="pagination-link" aria-label="Preparation">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Preparation</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
+      <a href="../chapters/IMAM-04-assembly.html" class="pagination-link" aria-label="De novo assembly">
+        <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">De novo assembly</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
   </div>
 </nav>
 </div> <!-- /content -->
