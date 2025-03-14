@@ -174,7 +174,7 @@ rule annotate_contigs:
         "result/all_contigs.fasta"
     threads: config["threads"]
     params:
-        database = config["diamond_db"]
+        database = config["diamond_db"],
         taxonmap = config["taxonmap"]
     log: "logs/diamond.log"
     output:
