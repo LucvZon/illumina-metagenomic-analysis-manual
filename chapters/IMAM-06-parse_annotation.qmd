@@ -1,0 +1,90 @@
+# Extracting Viral Sequences and Analyzing Mapped Reads
+
+We will conclude the pipeline with various steps which will create valuable data files for further downstream analysis.
+
+## Extract viral annotations
+
+A basic grep command can be used to extract contigs that have been annotated as viral from the annotation file in **step 4.3**.
+
+``` bash
+grep "Viruses$" {input.annotated} > {output.viral} || touch {output.viral}
+```
+
+-   `{input.annotated}` is the annotation file from **step 4.3**.
+-   `{output.viral}` contains all of your viral contigs.
+
+## Mapping reads to contigs
+
+We can map the quality-filtered and host-filtered reads back to the assembled contigs to quantify the abundance of different contigs in each sample. We will create a mapping file for paired reads (R1 and R2) and singletons (S) and then merge these two files together.
+
+``` bash
+bwa index {input.contigs}
+bwa mem -Y -t {threads} {input.contigs} {input.R1} {input.R2} | samtools sort - > {output.paired}/tmp_paired.bam
+bwa mem -Y -t {threads} {input.contigs} {input.S} | samtools sort - > {output.S}/tmp_singlets.bam
+samtools merge {output.merged}/contigs.bam {output.paired}/tmp_paired.bam {output.S}/tmp_singlets.bam
+rm {output.paired}/tmp_paired.bam {output.S}/tmp_singlets.bam
+```
+
+-   `{input.contigs}` contains the assembled contigs from **step 3.1**.
+-   `{input.R1}`, `{input.R2}` and `{input.S}` are the quality controlled and host-filtered reads from **step 2.4**.
+-   `{output.paired}` is the directory for the .bam mapping file based on paired reads.
+-   `{output.S}` is the directory for the .bam mapping file based on singleton reads.
+-   `{output.merged}` is the directory for the merged .bam file. 
+
+
+## Extract mapped reads
+
+We will extract the reads for each annotation file that we've created.
+
+``` bash
+#Create temporary BED file to extract the annotated mappings from the BAM of all mappings
+cut -f1 {input.annotated} | awk -F'_' '{{print $0 "\t" 0 "\t" $4}}' > {output}/tmp.bed
+samtools view -bL {output}/tmp.bed {input.mapped} > {output.annotated}
+      
+#Do the same for the unannotated contigs
+cut -f1 {input.unannotated} | awk -F'_' '{{print $0 "\t" 0 "\t" $4}}' > {output}/tmp.bed
+samtools view -bL {output}/tmp.bed {input.mapped} > {output.unannotated}
+
+#Do the same for the viral contigs
+cut -f1 {input.viral} | awk -F'_' '{{print $0 "\t" 0 "\t" $4}}' > {output}/tmp.bed
+samtools view -bL {output}/tmp.bed {input.mapped} > {output.viral}
+
+rm {output}/tmp.bed
+```
+
+-   `{input.annotated}`, `{input.unannotated}` and `{input.viral}` are the .tsv annotation files from **step 4.3 and 5.1**.
+-   `{input.mapped}` is the combined .bam file from **step 5.2**.
+-   `{output}` is a folder where temporary .bed files will be stored. 
+-   `{output.annotated}`, `{output.unannotated}` and `{output.viral}` are .bam files for each annotation input.
+
+
+## Count mapped reads
+
+Next we count the number of reads that mapped to each contig in the annotated, unannotated, and viral BAM files.
+
+``` bash
+samtools view -bF2052 {input.annotated} | seqkit bam -Qc - | awk '$2 != 0 {{print}}' > {output.annotated}
+samtools view -bF2052 {input.unannotated} | seqkit bam -Qc - | awk '$2 != 0 {{print}}' > {output.unannotated}
+samtools view -bF2052 {input.viral} | seqkit bam -Qc - | awk '$2 != 0 {{print}}' > {output.viral}
+```
+
+-   `{input.annotated}`, `{input.unannotated}` and `{input.viral}` are the .bam output files from **step 5.3**.
+-   `{output.annotated}`, `{output.unannotated}` and `{output.viral}` are .tsv files containing the read counts for each .bam file
+
+## Extract contigs
+
+Lastly, we will extract contigs for the annotated, unannotated and viral contigs. 
+
+``` bash
+seqkit grep -f <(cut -f1 {input.annotated}) {input.contigs} > {output.annotated}
+seqkit grep -f <(cut -f1 {input.unannotated}) {input.contigs} > {output.unannotated}
+seqkit grep -f <(cut -f1 {input.viral}) {input.contigs} > {output.viral}
+```
+
+-   `{input.annotated}`, `{input.unannotated}` and `{input.viral}` are .tsv annotation files from **steps 4.3 and 5.1**.
+-   `{input.contigs}` is the .fasta file containing all contigs for a sample from **step 3.1**.
+-   `{output.annotated}`, `{output.unannotated}` and `{output.viral}` are .fasta files containing the contigs.
+
+::: {.callout-note}
+You can now move to the final chapter to automate all of the steps we've previously discussed. 
+:::

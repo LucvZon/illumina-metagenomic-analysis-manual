@@ -1,0 +1,56 @@
+# Preparation
+
+::: callout-warning
+# Important!
+
+In the following sections whenever a **"parameter"** in brackets `{}` is shown, the intention is to fill in your own filename or value. Each parameter will be explained in the section in detail.
+:::
+
+::: callout-tip
+Notice the small *"Copy to Clipboard"* button on the right hand side of each code chunk, this can be used to copy the code.
+:::
+
+## Activating the correct conda software environment
+
+[Anaconda](www.anaconda.org) is a software management tool that can be used for creating specific environments where bioinformatics software can be installed in Linux, as it manages all the dependencies of different softwares for you. We will use Conda to create a dedicated environment for this manual's workflow, ensuring that all required tools are installed and configured correctly.
+
+To create the Conda environment for this manual, you'll need an `environment.yml` file that specifies the required software and their versions. Here's an example:
+
+``` yaml
+name: stable_env_1
+channels:
+  - conda-forge
+  - https://repo.anaconda.com/pkgs/main
+  - https://repo.anaconda.com/pkgs/r
+dependencies:
+  - python=3.9
+  - bioconda::spades=3.15.4
+  - bioconda::samtools=1.3.1
+  - conda-forge::diamond=2.0.15
+  - bioconda::snakemake=7.32.4
+  - conda-forge::biopython=1.85
+  - bioconda::cd-hit-auxtools=4.8.1
+  - bioconda::fastp=0.22.0
+  - bioconda::bwa=0.7.18
+  - bioconda::seqkit=2.9.0
+```
+
+1.  Copy the above text and save it to a file named environment.yml in your project directory.
+
+2.  In your terminal, navigate to your project directory (where you saved the environment.yml file) and create the Conda environment with the following command:
+
+``` bash
+conda env create -f environment.yml
+```
+
+After the environment has been created, you need to activate it before you can use the software installed within it. To activate the environment, run:
+
+``` bash
+conda activate stable_env_1
+```
+
+`stable_env_1` is the name of the Conda environment you created. When the environment is activated, you'll see its name in parentheses at the beginning of your terminal prompt (stable_env_1). This indicates that you're now working within the Conda environment.
+
+::: callout-note
+We are now ready to start executing the code to perform quality control of our raw Illumina sequencing data in the next chapter.
+:::

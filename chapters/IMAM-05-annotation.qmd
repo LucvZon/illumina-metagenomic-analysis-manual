@@ -1,0 +1,85 @@
+# Taxonomic classification
+
+## Diamond
+
+Now we will annotate the aggregated contigs by assigning taxonomic classifications to them based on sequence similarity to known proteins in a database using [diamond blastx](https://github.com/bbuchfink/diamond).
+
+Please take note of the following blastx parameters: `-f (--outfmt)`, `-b (--block-size)` and `-c (--index-chunks)`, documentation can be found [here](http://diamondsearch.org/forums/index.php?pages/command_line_options/).
+
+The `-f 6` parameter will ensure the output is in a tabular format. The `6` may be followed by a space-separated list of various keywords, each specifying a field of the output.
+
+The `-b` parameter is the main parameter for controlling the program’s memory and disk space usage. Bigger numbers will increase the use of memory and temporary disk space, but also improve performance. The program can be expected to use roughly six times this number of memory (in GB). The default value is -b 2. The parameter can be decreased for reducing memory use, as well as increased for better performance (values of \>20 are not recommended).
+
+The `-c` parameter controls the number of chunks for processing the seed index. This option can be additionally used to tune the performance. The default value is -c 4, while setting this parameter to -c 1 instead will improve the performance at the cost of increased memory use.
+
+``` bash
+diamond blastx \
+-q {input} \
+-d {db} \
+-o {output} \
+-f 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore staxids \
+--threads {threads} \
+-b 10 -c 1
+```
+
+-   `{input}` is the contig file created in either **step 3.3** or **step 3.1**, depending on your amount of samples.
+-   `{db}` is the protein database to be searched against.
+-   `{output}` is a .tsv file containing the annotation results.
+
+Multiple different databases and taxomaps can be found in: `\\cifs.research.erasmusmc.nl\viro0002\workgroups_projects\Bioinformatics\DB`
+
+## Split annotation files
+
+We will split the combined annotation file back into individual annotation files for each sample. This step can be seen as optional if you are dealing with a single sample.
+
+**Modify and run:**
+
+``` bash
+mkdir -p tmp_split
+
+sed 's/_NODE/|NODE/' {input} | awk -F'|' '{
+    identifier = $1;  # Construct the identifier using the first two fields
+
+    output_file = "tmp_split/" identifier;  # Construct the output filename
+
+    if (!seen[identifier]++) {
+        close(output_file);  # Close the previous file (if any)
+        output = output_file;  # Update the current output file
+    }
+
+    print $2 > output;  # Append the line to the appropriate output file
+}'
+
+for file in tmp_split/*; do
+    mkdir -p {output}/$(basename "$file")/;
+    mv "$file" {output}/$(basename "$file")/diamond_output.tsv;
+done
+
+rmdir tmp_split
+```
+
+-   `{input}` is the combined annotation file from **step 4.1**.
+-   `{output}` is a directory path. This directory will be automatically filled with subdirectories for each sample. In each subdirectory you will find a diamond_out.tsv file.
+
+## Parsing diamond output
+
+Now we will process the DIAMOND output files with a custom Python script called **post_process_diamond.py**. This script will further enrich taxonomic information for each contig based on the DIAMOND alignment results. If a contig has multiple matches in the database, it will select the best hit based on a combined score of bitscore and length. Lastly, it separates the contigs into two lists: those that were successfully annotated and unannotated.
+
+This python script utilizes the [biopython library](https://biopython.org/).
+
+``` bash
+python /mnt/viro0002/workgroups_projects/Bioinformatics/scripts/post_process_diamond.py \
+-i {input.annotation} \
+-c {input.contigs} \
+-o {output.annotated} \
+-u {output.unannotated}
+```
+
+-   `{input.annotation}` is the annotation file **step 4.2**.
+-   `{input.contigs}` are the contigs from the SPAdes **step 3.1**.
+-   `{output.annotated}` is a .tsv file with a set of annotated contigs.
+-   `{output.unannotated}` is a .tsv file with a set of unannotated contig IDs.
+
+::: callout-note
+We can now move on to the final steps where we will create various files needed for downstream analysis.
+:::

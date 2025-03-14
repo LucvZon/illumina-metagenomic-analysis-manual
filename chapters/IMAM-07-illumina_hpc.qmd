@@ -1,0 +1,64 @@
+# Automating data analysis
+
+In the previous chapters, you learned how to perform each step of the metagenomic data analysis pipeline manually. While this is a valuable learning experience, it's not practical for analyzing large datasets or for ensuring reproducibility in the long term.
+
+We can make use of a tool called [Snakemake](https://snakemake.readthedocs.io/en/stable/) to automate the previous steps into a single pipeline. With Snakemake, you can define the steps of your analysis in a `Snakefile` and then let Snakemake handle the execution, dependency management, and error handling.
+
+## Preparing to run the workflow.
+
+To run the automated workflow, you'll need to make sure that your project directory is set up correctly and that you have activated the necessary Conda environment.
+
+To make the project setup process even easier, we've created a command-line tool called `prepare_project.py`. This tool automates the creation of the project directory, the sample configuration file (`sample.tsv`), and the general settings configuration file (`config.yaml`), guiding you through each step with clear prompts and error checking. 
+
+To proceed, make sure to activate the appropriate conda environment and check if the command line has `(stable_env_1)` in front.
+
+``` bash
+conda activate stable_env_1 # Replace environment name is needed
+```
+
+Run prepare_project.py with Python as follows:
+
+``` bash
+python prepare_project.py -n {name} -p {project.folder} -r {reads}
+```
+
+-   `{name}` is the name of your study, no spaces allowed.
+-   `{project.folder}` is your project folder.
+-   `{reads}` is the folder that contains your raw .fastq.gz files.
+
+Now, move to your project directory. First check your current directory with the `pwd` command:
+
+``` bash
+pwd
+```
+
+Change your current directory using cd if needed:
+
+``` bash
+cd /{folder1}/{folder2} # Replace with the actual path to your project directory
+```
+
+Next, use the `ls` command to list the files in the project directory and check if the following files are present: `sample.tsv`, `config.yaml` and `Snakefile`.
+
+-   The sample.tsv should have 3 columns: sample (sample name), fq1 and fq2 (paths to raw read files).
+
+-   The config.yaml contains more general information like the reference, database and taxonmap you supplied as well as the amount of default threads to use.
+
+-   The Snakefile is the "recipe" for the workflow, describing all the steps we have done by hand, and it is most commonly placed in the root directory of your project (you can open the Snakefile with a text editor and have a look).
+
+## Running the workflow
+
+After setting everything up, we can redo the analysis for all samples in a single step. First we will test out a dry run to see if any errors appear. A dry run will not execute any of the commands but will instead display what would be done. This will help identify any errors in the Snakemake file.
+
+Run inside of your project directory:
+
+``` bash
+snakemake \
+--snakefile \
+Snakefile \
+--use-conda \
+--cores {threads} \
+--dryrun
+```
+
+If no errors appear, then remove the `--dryrun` argument and run it again to fully execute the workflow.
