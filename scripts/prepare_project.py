@@ -100,16 +100,10 @@ diamond_db = input("Enter path to DIAMOND database (.dmnd): ")
 if not os.path.exists(diamond_db):
     print(f"Error: The file {diamond_db} does not exist. Please specify your input diamond database")
     sys.exit(1)
-taxonmap = input("Enter path to taxonmap file (.gz): ")
-#Check that the .taxonmap file exists
-if not os.path.exists(taxonmap):
-    print(f"Error: The file {taxonmap} does not exist. Please specify your input taxonmap file")
-    sys.exit(1)
 
 config_data = {
     "ref_genome": ref_genome,
     "diamond_db": diamond_db,
-    "taxonmap": taxonmap,
     "threads": 8  # Set a default number of threads
 }
 
