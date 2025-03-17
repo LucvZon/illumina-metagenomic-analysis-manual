@@ -17,22 +17,24 @@ Notice the small *"Copy to Clipboard"* button on the right hand side of each cod
 To create the Conda environment for this manual, you'll need an `environment.yml` file that specifies the required software and their versions. Here's an example:
 
 ``` yaml
-name: stable_env_1
 channels:
-  - conda-forge
-  - https://repo.anaconda.com/pkgs/main
-  - https://repo.anaconda.com/pkgs/r
+- conda-forge
+- bioconda
+- defaults
 dependencies:
-  - python=3.9
-  - bioconda::spades=3.15.4
-  - bioconda::samtools=1.3.1
-  - conda-forge::diamond=2.0.15
-  - bioconda::snakemake=7.32.4
-  - conda-forge::biopython=1.85
-  - bioconda::cd-hit-auxtools=4.8.1
-  - bioconda::fastp=0.22.0
-  - bioconda::bwa=0.7.18
-  - bioconda::seqkit=2.9.0
+- conda-forge::python=3.12
+- conda-forge::libdeflate=1.23
+- None::htslib=1.21
+- bioconda::snakemake=8.30.0
+- bioconda::diamond=2.1.11
+- bioconda::spades=4.1.0
+- bioconda::cd-hit-auxtools=4.8.1
+- bioconda::fastp=0.24.0
+- bioconda::bwa=0.7.18
+- bioconda::seqkit=2.10.0
+- conda-forge::biopython=1.85
+- bioconda::samtools=1.21
+name: imam
 ```
 
 1.  Copy the above text and save it to a file named environment.yml in your project directory.
@@ -46,10 +48,10 @@ conda env create -f environment.yml
 After the environment has been created, you need to activate it before you can use the software installed within it. To activate the environment, run:
 
 ``` bash
-conda activate stable_env_1
+conda activate imam
 ```
 
-`stable_env_1` is the name of the Conda environment you created. When the environment is activated, you'll see its name in parentheses at the beginning of your terminal prompt (stable_env_1). This indicates that you're now working within the Conda environment.
+`imam` is the name of the Conda environment you created. When the environment is activated, you'll see its name in parentheses at the beginning of your terminal prompt (imam). This indicates that you're now working within the Conda environment.
 
 ::: callout-note
 We are now ready to start executing the code to perform quality control of our raw Illumina sequencing data in the next chapter.
