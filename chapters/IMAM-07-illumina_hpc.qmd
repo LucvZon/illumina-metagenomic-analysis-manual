@@ -10,10 +10,10 @@ To run the automated workflow, you'll need to make sure that your project direct
 
 To make the project setup process even easier, we've created a command-line tool called `prepare_project.py`. This tool automates the creation of the project directory, the sample configuration file (`sample.tsv`), and the general settings configuration file (`config.yaml`), guiding you through each step with clear prompts and error checking. 
 
-To proceed, make sure to activate the appropriate conda environment and check if the command line has `(stable_env_1)` in front.
+To proceed, make sure to activate the appropriate conda environment and check if the command line has `(imam)` in front.
 
 ``` bash
-conda activate stable_env_1 # Replace environment name is needed
+conda activate imam # Replace environment name is needed
 ```
 
 Run prepare_project.py with Python as follows:
@@ -56,7 +56,6 @@ Run inside of your project directory:
 snakemake \
 --snakefile \
 Snakefile \
---use-conda \
 --cores {threads} \
 --dryrun
 ```
