@@ -1,6 +1,13 @@
 # de novo assembly using metaSPades, DIAMOND taxonomic classification 
 
+
+STUDY_NAME = ""
+
+
 import pandas as pd
+import glob
+import os
+import re
 
 # Load general configuration
 configfile: "config.yaml"
@@ -8,29 +15,60 @@ configfile: "config.yaml"
 # Load sample information from the TSV file
 sample_data = pd.read_csv("sample.tsv", sep="\t")
 
-# Create samples list from the 'sample' column of the TSV
-samples = sample_data["sample"].tolist()
-print(samples)
+# Extract sample names without lane information
+def extract_base_sample_name(sample_name):
+    """Extracts the base sample name, removing lane information."""
 
-# Helper function to get sample-specific values
-def get_sample_value(wildcards, column):
-    return sample_data.loc[sample_data["sample"] == wildcards.sample, column].iloc[0]
+    # Use regular expression to remove lane information (L001, L002, L003, or L004)
+    base_name = re.sub(r'_L00[1-4]', '', sample_name) # Remove _L001, _L002, _L003, _L004
 
-STUDY_NAME = ""
+    # Remove _R1_001 and _R2_001
+    base_name = base_name.replace("_R1_001", "").replace("_R2_001", "")
+    return base_name
+
+sample_data["base_sample"] = sample_data["sample"].apply(extract_base_sample_name)
+
+# Get unique base sample names
+base_samples = sample_data["base_sample"].unique().tolist()
+
+# Function to find all R1 and R2 files for a given base sample
+def get_all_fastq_files(base_sample):
+    """Finds all R1 and R2 fastq.gz files associated with a given base sample."""
+    r1_files_lane = sorted(glob.glob(f"*/{base_sample}*_L00[1-4]*_R1_001.fastq.gz"))  # With lane info
+    r1_files_no_lane = sorted(glob.glob(f"*/{base_sample}*_R1_001.fastq.gz"))       # Without lane info
+
+    r2_files_lane = sorted(glob.glob(f"*/{base_sample}*_L00[1-4]*_R2_001.fastq.gz"))  # With lane info
+    r2_files_no_lane = sorted(glob.glob(f"*/{base_sample}*_R2_001.fastq.gz"))       # Without lane info
+
+
+    # Combine the lists: if a file exists with a lane, use it; otherwise, use the no-lane version
+    r1_files = r1_files_lane if r1_files_lane else r1_files_no_lane
+    r2_files = r2_files_lane if r2_files_lane else r2_files_no_lane
+    
+    return r1_files, r2_files
+
+# Create a dictionary mapping base sample to a list of R1 and R2 files
+fastq_files = {}
+for base_sample in base_samples:
+    fastq_files[base_sample] = get_all_fastq_files(base_sample)
+
+print(f"Base Samples: {base_samples}")
+print(f"Fastq Files: {fastq_files}")
+
 
 rule all:
     input:
-        expand("result/{sample}/mapping/annotated_idxstats.tsv", sample = samples),
-        expand("result/{sample}/mapping/unannotated_idxstats.tsv", sample = samples),
-        expand("result/{sample}/mapping/viral_idxstats.tsv", sample = samples),
-        expand("result/{sample}/mapping/annotated_contigs.fasta", sample = samples),
-        expand("result/{sample}/mapping/unannotated_contigs.fasta", sample = samples),
-        expand("result/{sample}/mapping/viral_contigs.fasta", sample = samples)
+        expand("result/{sample}/mapping/annotated_idxstats.tsv", sample = base_samples),
+        expand("result/{sample}/mapping/unannotated_idxstats.tsv", sample = base_samples),
+        expand("result/{sample}/mapping/viral_idxstats.tsv", sample = base_samples),
+        expand("result/{sample}/mapping/annotated_contigs.fasta", sample = base_samples),
+        expand("result/{sample}/mapping/unannotated_contigs.fasta", sample = base_samples),
+        expand("result/{sample}/mapping/viral_contigs.fasta", sample = base_samples)
 
-rule unzip_fastq:
+rule merge_and_unzip_fastq:
     input: 
-        R1 = lambda wildcards: get_sample_value(wildcards, "fq1"),
-        R2 = lambda wildcards: get_sample_value(wildcards, "fq2")
+        R1 = lambda wildcards: fastq_files[wildcards.sample][0],  # List of R1 files
+        R2 = lambda wildcards: fastq_files[wildcards.sample][1]   # List of R2 files
     output:
         R1 = temp("result/{sample}/{sample}_R1.fastq"),
         R2 = temp("result/{sample}/{sample}_R2.fastq")
@@ -159,7 +197,7 @@ rule rename_contigs:
 
 rule aggregate_contigs:
     input:
-        expand("result/{sample}/assembly/contigs_renamed.fasta", sample = samples)
+        expand("result/{sample}/assembly/contigs_renamed.fasta", sample = base_samples)
     threads: config["threads"]
     output:
         "result/all_contigs.fasta"
@@ -174,8 +212,7 @@ rule annotate_contigs:
         "result/all_contigs.fasta"
     threads: config["threads"]
     params:
-        database = config["diamond_db"],
-        taxonmap = config["taxonmap"]
+        database = config["diamond_db"]
     log: "logs/diamond.log"
     output:
         "result/all_contigs_annotated.tsv"
@@ -197,7 +234,7 @@ rule split_annotation_files:
         "result/all_contigs_annotated.tsv"
     threads: config["threads"]
     output:
-        expand("result/{sample}/annotation/diamond_output.tsv", sample = samples)
+        expand("result/{sample}/annotation/diamond_output.tsv", sample = base_samples)
     shell:
         '''
         mkdir -p tmp_split
