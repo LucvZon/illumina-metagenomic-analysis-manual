@@ -40,7 +40,7 @@ cd /{folder1}/{folder2} # Replace with the actual path to your project directory
 
 Next, use the `ls` command to list the files in the project directory and check if the following files are present: `sample.tsv`, `config.yaml` and `Snakefile`.
 
--   The sample.tsv should have 3 columns: sample (sample name), fq1 and fq2 (paths to raw read files).
+-   The sample.tsv should have 3 columns: sample (sample name), fq1 and fq2 (paths to raw read files). Please note that samples sequenced by Illumina machines can be ran across different lanes. In such cases, the Illumina software will generate fastq files for each sample that are lane specific (e.g. L001 = Lane 1, etc). So you may end up with a sample.tsv file that contains sample names like `1_S1_L001` and `1_S1_L002`, even though these are the same sample, just sequenced across different lanes. The snakemake workflow will recognize this behaviour and merge these files together accordingly.
 
 -   The config.yaml contains more general information like the reference, database and taxonmap you supplied as well as the amount of default threads to use.
 
