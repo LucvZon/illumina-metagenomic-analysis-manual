@@ -1,4 +1,4 @@
-## This repo contains files needed for the Illumina metagenomic analysis manual (IMAM).
+## Illumina metagenomic analysis manual (IMAM).
 
 Required files can be found here:
 
@@ -10,7 +10,8 @@ To view the manual in its entirety, please visit the [EMC-Viroscience website](h
 
 ## Brief workflow summary:
 1. **Quality control**
-  - yap yap
+  - Deduplication: [cd-hit-dup](https://github.com/weizhongli/cdhit/blob/master/doc/cdhit-user-guide.wiki)
+  - Trimming: ... [fast](https://github.com/OpenGene/fastp)
   
 2. De novo assembly
 
