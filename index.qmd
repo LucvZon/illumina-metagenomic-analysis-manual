@@ -1,3 +1,7 @@
 # Introduction {.unnumbered}
 
-Welcome to the Illumina metagenomic data analysis manual. This manual contains a step by step guide for performing quality control, filtering host sequences, assembling reads into contigs, annotating the contigs, and then extracing viral contigs and their corresponding reads. In the final chapter of the manual we will show how to automate all of these steps into a single pipeline for speed and convenience. 
+Welcome to the Illumina metagenomic data analysis manual. This manual contains a step by step guide for performing quality control, filtering host sequences, assembling reads into contigs, annotating the contigs, and then extracing viral contigs and their corresponding reads. In the final chapter of the manual we will show how to automate all of these steps into a single pipeline for speed and convenience.
+
+::: callout-tip
+If you are just interested in running the automated workflow, then you only have to check out the chapters 'Preparation' and 'Automating data analysis'.
+:::
