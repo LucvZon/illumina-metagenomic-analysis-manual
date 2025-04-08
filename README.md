@@ -44,12 +44,12 @@ Interesting files can be found here:
 ## Brief workflow summary:
 1. **Quality control**
   - Merging and decompressing with zcat.
-  - **Deduplication**: Remove duplicate reads from the uncompressed FASTQ files with [cd-hit-dup](https://github.com/weizhongli/cdhit/blob/master/doc/cdhit-user-guide.wiki){target="_blank"}.
-  - **Quality trimming**: Perform quality and sequence adapter trimming with [fast](https://github.com/OpenGene/fastp){target="_blank"}.
-  - **Host filtering**: Remove reads that map to a host genome (e.g., human) with [bwa](https://github.com/lh3/bwa){target="_blank"}.
+  - **Deduplication**: Remove duplicate reads from the uncompressed FASTQ files with [cd-hit-dup](https://github.com/weizhongli/cdhit/blob/master/doc/cdhit-user-guide.wiki).
+  - **Quality trimming**: Perform quality and sequence adapter trimming with [fast](https://github.com/OpenGene/fastp).
+  - **Host filtering**: Remove reads that map to a host genome (e.g., human) with [bwa](https://github.com/lh3/bwa).
   
 2. **De novo assembly**
-  - Perform de novo assembly of the host-filtered reads to create contigs with [SPades](https://github.com/ablab/spades){target="_blank"}.
+  - Perform de novo assembly of the host-filtered reads to create contigs with [SPades](https://github.com/ablab/spades).
   - Rename contigs.
   - Aggregate contigs.
 
