@@ -13,69 +13,89 @@ import re
 configfile: "config.yaml"
 
 # Load sample information from the TSV file
-sample_data = pd.read_csv("sample.tsv", sep="\t")
+# Ensure sample.tsv contains absolute paths in fq1, fq2 columns
+try:
+    # Keep the original sample name (with lane etc.) as the index for now
+    sample_data = pd.read_csv("sample.tsv", sep="\t").set_index("sample", drop=False)
+except Exception as e:
+    print("Error reading or processing sample.tsv:")
+    print(e)
+    raise
 
-# Extract sample names without lane information
-def extract_base_sample_name(sample_name):
-    """Extracts the base sample name, removing lane information."""
-
-    # Use regular expression to remove lane information (L001, L002, L003, or L004)
-    base_name = re.sub(r'_L00[1-4]', '', sample_name) # Remove _L001, _L002, _L003, _L004
-
-    # Remove _R1_001 and _R2_001
-    base_name = base_name.replace("_R1_001", "").replace("_R2_001", "")
+# --- Reinstate logic to find BASE samples ---
+def extract_base_sample_name(sample_name_with_suffix):
+    """
+    Extracts the base sample name, removing common sequencing suffixes
+    like _S[0-9]+, _L00[1-4], _R[12], _001.
+    Adjust the regex if your naming convention differs significantly.
+    Example: UDI_1_S1_L001_R1_001 -> UDI_1
+             SampleX_R1_001 -> SampleX
+    """
+    # Remove _S followed by numbers
+    base_name = re.sub(r'_S\d+', '', sample_name_with_suffix)
+    # Remove _L00 followed by 1-4
+    base_name = re.sub(r'_L00[1-4]', '', base_name)
+    # Remove _R1 or _R2
+    base_name = re.sub(r'_R[12]', '', base_name)
+    # Remove _001 suffix
+    base_name = re.sub(r'_001$', '', base_name)
+    # Remove potential leftover trailing underscores
+    base_name = base_name.strip('_')
     return base_name
 
+# Apply the function to the original 'sample' column to get base names
 sample_data["base_sample"] = sample_data["sample"].apply(extract_base_sample_name)
 
 # Get unique base sample names
-base_samples = sample_data["base_sample"].unique().tolist()
+BASE_SAMPLES = sorted(sample_data["base_sample"].unique().tolist())
+# -----------------------------------------------
 
-# Function to find all R1 and R2 files for a given base sample
-def get_all_fastq_files(base_sample):
-    """Finds all R1 and R2 fastq.gz files associated with a given base sample."""
-    r1_files_lane = sorted(glob.glob(f"*/{base_sample}*_L00[1-4]*_R1_001.fastq.gz"))  # With lane info
-    r1_files_no_lane = sorted(glob.glob(f"*/{base_sample}*_R1_001.fastq.gz"))       # Without lane info
+# --- Create a dictionary mapping BASE sample to its list of FASTQ files ---
+#     Structure: {base_sample: {'R1': [abs_path_r1_lane1, abs_path_r1_lane2,...],
+#                               'R2': [abs_path_r2_lane1, abs_path_r2_lane2,...]}}
+fastq_files_for_base_sample = {}
+for base_sample in BASE_SAMPLES:
+    # Find all rows in the original dataframe corresponding to this base sample
+    matching_rows = sample_data[sample_data["base_sample"] == base_sample]
+    # Get the absolute paths from the fq1 and fq2 columns for these rows
+    r1_files = sorted(matching_rows["fq1"].tolist())
+    r2_files = sorted(matching_rows["fq2"].tolist())
+    fastq_files_for_base_sample[base_sample] = {'R1': r1_files, 'R2': r2_files}
+# -----------------------------------------------------------------------
 
-    r2_files_lane = sorted(glob.glob(f"*/{base_sample}*_L00[1-4]*_R2_001.fastq.gz"))  # With lane info
-    r2_files_no_lane = sorted(glob.glob(f"*/{base_sample}*_R2_001.fastq.gz"))       # Without lane info
-
-
-    # Combine the lists: if a file exists with a lane, use it; otherwise, use the no-lane version
-    r1_files = r1_files_lane if r1_files_lane else r1_files_no_lane
-    r2_files = r2_files_lane if r2_files_lane else r2_files_no_lane
-    
-    return r1_files, r2_files
-
-# Create a dictionary mapping base sample to a list of R1 and R2 files
-fastq_files = {}
-for base_sample in base_samples:
-    fastq_files[base_sample] = get_all_fastq_files(base_sample)
-
-print(f"Base Samples: {base_samples}")
-print(f"Fastq Files: {fastq_files}")
+print(f"Base Samples: {BASE_SAMPLES}")
+print(f"Fastq Files Per Base Sample: {fastq_files_for_base_sample}")
 
 
 rule all:
     input:
-        expand("result/{sample}/mapping/annotated_idxstats.tsv", sample = base_samples),
-        expand("result/{sample}/mapping/unannotated_idxstats.tsv", sample = base_samples),
-        expand("result/{sample}/mapping/viral_idxstats.tsv", sample = base_samples),
-        expand("result/{sample}/mapping/annotated_contigs.fasta", sample = base_samples),
-        expand("result/{sample}/mapping/unannotated_contigs.fasta", sample = base_samples),
-        expand("result/{sample}/mapping/viral_contigs.fasta", sample = base_samples)
+        # Expand based on the unique BASE samples
+        expand("result/{sample}/mapping/annotated_idxstats.tsv", sample=BASE_SAMPLES),
+        expand("result/{sample}/mapping/unannotated_idxstats.tsv", sample=BASE_SAMPLES),
+        expand("result/{sample}/mapping/viral_idxstats.tsv", sample=BASE_SAMPLES),
+        expand("result/{sample}/mapping/annotated_contigs.fasta", sample=BASE_SAMPLES),
+        expand("result/{sample}/mapping/unannotated_contigs.fasta", sample=BASE_SAMPLES),
+        expand("result/{sample}/mapping/viral_contigs.fasta", sample=BASE_SAMPLES)
+
 
 rule merge_and_unzip_fastq:
-    input: 
-        R1 = lambda wildcards: fastq_files[wildcards.sample][0],  # List of R1 files
-        R2 = lambda wildcards: fastq_files[wildcards.sample][1]   # List of R2 files
+    message: # Add a message for clarity
+        "Merging and unzipping FASTQ files for base sample {wildcards.sample}"
+    input:
+        # Use the base sample name (wildcards.sample) to look up the *list* of files
+        R1 = lambda wildcards: fastq_files_for_base_sample[wildcards.sample]['R1'],
+        R2 = lambda wildcards: fastq_files_for_base_sample[wildcards.sample]['R2']
     output:
+        # Output filenames use the base sample name
         R1 = temp("result/{sample}/{sample}_R1.fastq"),
         R2 = temp("result/{sample}/{sample}_R2.fastq")
     shell:
         """
-        zcat {input.R1} > {output.R1}
-        zcat {input.R2} > {output.R2}
+        echo "Input R1 files for {wildcards.sample}: {input.R1}" # Debugging echo
+        echo "Input R2 files for {wildcards.sample}: {input.R2}" # Debugging echo
+        # zcat automatically handles multiple input files and concatenates them
+        zcat {input.R1} > "{output.R1}"
+        zcat {input.R2} > "{output.R2}"
         """
 
 #count the number of reads in sample expr $(cat file.fastq | wc -l) / 4
@@ -197,7 +217,7 @@ rule rename_contigs:
 
 rule aggregate_contigs:
     input:
-        expand("result/{sample}/assembly/contigs_renamed.fasta", sample = base_samples)
+        expand("result/{sample}/assembly/contigs_renamed.fasta", sample = BASE_SAMPLES)
     threads: config["threads"]
     output:
         "result/all_contigs.fasta"
@@ -234,7 +254,7 @@ rule split_annotation_files:
         "result/all_contigs_annotated.tsv"
     threads: config["threads"]
     output:
-        expand("result/{sample}/annotation/diamond_output.tsv", sample = base_samples)
+        expand("result/{sample}/annotation/diamond_output.tsv", sample = BASE_SAMPLES)
     shell:
         '''
         mkdir -p tmp_split
