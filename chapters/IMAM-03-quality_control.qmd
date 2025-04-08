@@ -32,6 +32,11 @@ mkdir -p log
 mkdir -p results/assembly
 ```
 
+To use the required tools, activate the Singularity container as follows:
+```bash
+singularity shell imam_workflow.sif
+```
+
 ## Merging and decompressing FASTQ
 
 Any file in linux can be pasted to another file using the cat command. zcat in addition also unzips gzipped files (e.g. .fastq.gz extension). If your files are already unzipped, use cat instead.
@@ -65,7 +70,7 @@ rm {output.dir}/*.clstr
 
 ## Running fastp quality control software
 
-The [fastp](https://github.com/OpenGene/fastp) software is a very fast multipurpose quality control software to perform quality and sequence adapter trimming for Illumina short-read and Nanopore long-read data.
+The [fastp](https://github.com/OpenGene/fastp){target="_blank"} software is a very fast multipurpose quality control software to perform quality and sequence adapter trimming for Illumina short-read and Nanopore long-read data.
 
 **Run and modify:**
 

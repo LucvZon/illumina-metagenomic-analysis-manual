@@ -2,9 +2,9 @@
 
 ## Diamond
 
-Now we will annotate the aggregated contigs by assigning taxonomic classifications to them based on sequence similarity to known proteins in a database using [diamond blastx](https://github.com/bbuchfink/diamond).
+Now we will annotate the aggregated contigs by assigning taxonomic classifications to them based on sequence similarity to known proteins in a database using [diamond blastx](https://github.com/bbuchfink/diamond){target="_blank"}.
 
-Please take note of the following blastx parameters: `-f (--outfmt)`, `-b (--block-size)` and `-c (--index-chunks)`, documentation can be found [here](http://diamondsearch.org/forums/index.php?pages/command_line_options/).
+Please take note of the following blastx parameters: `-f (--outfmt)`, `-b (--block-size)` and `-c (--index-chunks)`, documentation can be found [here](http://diamondsearch.org/forums/index.php?pages/command_line_options/){target="_blank"}.
 
 The `-f 6` parameter will ensure the output is in a tabular format. The `6` may be followed by a space-separated list of various keywords, each specifying a field of the output.
 
@@ -65,7 +65,7 @@ rmdir tmp_split
 
 Now we will process the DIAMOND output files with a custom Python script called **post_process_diamond.py**. This script will further enrich taxonomic information for each contig based on the DIAMOND alignment results. If a contig has multiple matches in the database, it will select the best hit based on a combined score of bitscore and length. Lastly, it separates the contigs into two lists: those that were successfully annotated and unannotated.
 
-This python script utilizes the [biopython library](https://biopython.org/).
+This python script utilizes the [biopython library](https://biopython.org/){target="_blank"}.
 
 ``` bash
 python /mnt/viro0002/workgroups_projects/Bioinformatics/scripts/post_process_diamond.py \
