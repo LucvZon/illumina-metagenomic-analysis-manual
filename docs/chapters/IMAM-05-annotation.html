@@ -227,8 +227,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="diamond" class="level2" data-number="4.1">
 <h2 data-number="4.1" class="anchored" data-anchor-id="diamond"><span class="header-section-number">4.1</span> Diamond</h2>
-<p>Now we will annotate the aggregated contigs by assigning taxonomic classifications to them based on sequence similarity to known proteins in a database using <a href="https://github.com/bbuchfink/diamond">diamond blastx</a>.</p>
-<p>Please take note of the following blastx parameters: <code>-f (--outfmt)</code>, <code>-b (--block-size)</code> and <code>-c (--index-chunks)</code>, documentation can be found <a href="http://diamondsearch.org/forums/index.php?pages/command_line_options/">here</a>.</p>
+<p>Now we will annotate the aggregated contigs by assigning taxonomic classifications to them based on sequence similarity to known proteins in a database using <a href="https://github.com/bbuchfink/diamond" target="_blank">diamond blastx</a>.</p>
+<p>Please take note of the following blastx parameters: <code>-f (--outfmt)</code>, <code>-b (--block-size)</code> and <code>-c (--index-chunks)</code>, documentation can be found <a href="http://diamondsearch.org/forums/index.php?pages/command_line_options/" target="_blank">here</a>.</p>
 <p>The <code>-f 6</code> parameter will ensure the output is in a tabular format. The <code>6</code> may be followed by a space-separated list of various keywords, each specifying a field of the output.</p>
 <p>The <code>-b</code> parameter is the main parameter for controlling the program’s memory and disk space usage. Bigger numbers will increase the use of memory and temporary disk space, but also improve performance. The program can be expected to use roughly six times this number of memory (in GB). The default value is -b 2. The parameter can be decreased for reducing memory use, as well as increased for better performance (values of &gt;20 are not recommended).</p>
 <p>The <code>-c</code> parameter controls the number of chunks for processing the seed index. This option can be additionally used to tune the performance. The default value is -c 4, while setting this parameter to -c 1 instead will improve the performance at the cost of increased memory use.</p>
@@ -279,7 +279,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="parsing-diamond-output" class="level2" data-number="4.3">
 <h2 data-number="4.3" class="anchored" data-anchor-id="parsing-diamond-output"><span class="header-section-number">4.3</span> Parsing diamond output</h2>
 <p>Now we will process the DIAMOND output files with a custom Python script called <strong>post_process_diamond.py</strong>. This script will further enrich taxonomic information for each contig based on the DIAMOND alignment results. If a contig has multiple matches in the database, it will select the best hit based on a combined score of bitscore and length. Lastly, it separates the contigs into two lists: those that were successfully annotated and unannotated.</p>
-<p>This python script utilizes the <a href="https://biopython.org/">biopython library</a>.</p>
+<p>This python script utilizes the <a href="https://biopython.org/" target="_blank">biopython library</a>.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> /mnt/viro0002/workgroups_projects/Bioinformatics/scripts/post_process_diamond.py <span class="dt">\</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>-i {input.annotation} <span class="dt">\</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>-c {input.contigs} <span class="dt">\</span></span>

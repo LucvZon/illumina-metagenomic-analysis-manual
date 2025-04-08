@@ -197,7 +197,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#activating-the-correct-conda-software-environment" id="toc-activating-the-correct-conda-software-environment" class="nav-link active" data-scroll-target="#activating-the-correct-conda-software-environment"><span class="header-section-number">1.1</span> Activating the correct conda software environment</a></li>
+  <li><a href="#singularity-container" id="toc-singularity-container" class="nav-link active" data-scroll-target="#singularity-container"><span class="header-section-number">1.1</span> Singularity container</a>
+  <ul class="collapse">
+  <li><a href="#download-pre-built-image" id="toc-download-pre-built-image" class="nav-link" data-scroll-target="#download-pre-built-image"><span class="header-section-number">1.1.1</span> Download pre-built image</a></li>
+  <li><a href="#verify-container" id="toc-verify-container" class="nav-link" data-scroll-target="#verify-container"><span class="header-section-number">1.1.2</span> Verify container</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -249,36 +253,25 @@ Tip
 <p>Notice the small <em>“Copy to Clipboard”</em> button on the right hand side of each code chunk, this can be used to copy the code.</p>
 </div>
 </div>
-<section id="activating-the-correct-conda-software-environment" class="level2" data-number="1.1">
-<h2 data-number="1.1" class="anchored" data-anchor-id="activating-the-correct-conda-software-environment"><span class="header-section-number">1.1</span> Activating the correct conda software environment</h2>
-<p><a href="www.anaconda.org">Anaconda</a> is a software management tool that can be used for creating specific environments where bioinformatics software can be installed in Linux, as it manages all the dependencies of different softwares for you. We will use Conda to create a dedicated environment for this manual’s workflow, ensuring that all required tools are installed and configured correctly.</p>
-<p>To create the Conda environment for this manual, you’ll need an <code>environment.yml</code> file that specifies the required software and their versions. Here’s an example:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">channels</span><span class="kw">:</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> conda-forge</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> bioconda</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> defaults</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">dependencies</span><span class="kw">:</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> conda-forge::python=3.12</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> conda-forge::libdeflate=1.23</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> None::htslib=1.21</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> bioconda::snakemake=8.30.0</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> bioconda::diamond=2.1.11</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> bioconda::spades=4.1.0</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> bioconda::cd-hit-auxtools=4.8.1</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> bioconda::fastp=0.24.0</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> bioconda::bwa=0.7.18</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> bioconda::seqkit=2.10.0</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> conda-forge::biopython=1.85</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> bioconda::samtools=1.21</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> imam</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<ol type="1">
-<li><p>Copy the above text and save it to a file named environment.yml in your project directory.</p></li>
-<li><p>In your terminal, navigate to your project directory (where you saved the environment.yml file) and create the Conda environment with the following command:</p></li>
-</ol>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> env create <span class="at">-f</span> environment.yml</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>After the environment has been created, you need to activate it before you can use the software installed within it. To activate the environment, run:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> activate imam</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><code>imam</code> is the name of the Conda environment you created. When the environment is activated, you’ll see its name in parentheses at the beginning of your terminal prompt (imam). This indicates that you’re now working within the Conda environment.</p>
+<section id="singularity-container" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="singularity-container"><span class="header-section-number">1.1</span> Singularity container</h2>
+<p>This workflow is distributed as a self-contained Singularity container image, which includes all necessary software dependencies and helper scripts. This simplifies setup considerably. It is required that <a href="https://docs.sylabs.io/guides/3.5/user-guide/introduction.html" target="_blank">Singularity</a> version 3.x or later is available on your system. If you are working with a high performance computing (HPC) system, then this will likely already be installed and available for use. Try writing <code>singularity --help</code> in your terminal (that’s connected to the HPC system) and see if the command is recognized.</p>
+<section id="download-pre-built-image" class="level3" data-number="1.1.1">
+<h3 data-number="1.1.1" class="anchored" data-anchor-id="download-pre-built-image"><span class="header-section-number">1.1.1</span> Download pre-built image</h3>
+<p>The singularity container needs an image file to activate the precompiled work environment. You can download the required workflow image file (imam_workflow.sif) directly through the terminal via:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">wget</span> https://github.com/LucvZon/illumina-metagenomic-analysis-manual/releases/tag/v1.0.0/imam_workflow.sif</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Or go to the <a href="https://github.com/LucvZon/illumina-metagenomic-analysis-manual/releases/tag/v1.0.0" target="_blank">github page</a> and manually download it there, then transfer it to your HPC system.</p>
+</section>
+<section id="verify-container" class="level3" data-number="1.1.2">
+<h3 data-number="1.1.2" class="anchored" data-anchor-id="verify-container"><span class="header-section-number">1.1.2</span> Verify container</h3>
+<p>You can test basic execution:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">singularity</span> <span class="at">--version</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">singularity</span> exec imam_workflow.sif echo <span class="st">"Container is accessible!"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>To check more in depth, you can start an interactive shell inside the build container and run some checks. <code>singularity shell imam_workflow.sif</code> will drop you into a shell running inside the container. The conda environment needed for this workflow is automatically active on start-up of the interactive shell. All the tools of the conda environment will therefore be ready to use.</p>
+<p>Please note that you do not have to run <code>conda activate {environment}</code> to activate the environment – everything is inside imam_workflow.sif. If you’re curious about the conda environment we’re using, you can check it out <a href="https://github.com/LucvZon/illumina-metagenomic-analysis-manual/blob/main/envs/environment.yml" target="_blank">here</a></p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">singularity</span> shell imam_workflow.sif <span class="co"># Start interactive shell</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">fastp</span> <span class="at">--help</span> <span class="co"># Check one of the tools from the conda environment</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">which</span> python <span class="co"># Check python version of the conda environment</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -294,6 +287,7 @@ Note
 </div>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
