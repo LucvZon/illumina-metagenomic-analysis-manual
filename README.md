@@ -13,7 +13,7 @@ Interesting files can be found here:
 
 1. **Download pre-built image**
   ```
-  wget https://github.com/LucvZon/illumina-metagenomic-analysis-manual/releases/tag/v1.0.0/imam_workflow.sif
+  wget https://github.com/LucvZon/illumina-metagenomic-analysis-manual/releases/download/v1.0.0/imam_workflow.sif
   ```
 
 2. **Prepare project directory**
