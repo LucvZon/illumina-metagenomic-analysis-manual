@@ -109,7 +109,7 @@ rule dedup_raw:
         R1 = "result/{sample}/dedup/{sample}_R1.fastq",
         R2 = "result/{sample}/dedup/{sample}_R2.fastq"
     log: "logs/{sample}_cd-hit.log"
-    threads: config["threads"]
+    threads: 8
     shell:
         """
         cd-hit-dup -u 50 -i {input.R1} -i2 {input.R2} -o {output.R1} -o2 {output.R2} > {log} 2>&1
@@ -126,7 +126,7 @@ rule QC_after_dedup:
         S = "result/{sample}/dedup_qc/{sample}_S.fastq",
         failed = "result/{sample}/dedup_qc/{sample}_fail.fastq"
     log: "logs/{sample}_fastp.log"
-    threads: config["threads"]
+    threads: 4
     shell:
         """
         fastp -i {input.R1} -I {input.R2} \
@@ -153,7 +153,7 @@ rule filter_host:
         R1 = "result/{sample}/filtered/{sample}_R1.fastq",
         R2 = "result/{sample}/filtered/{sample}_R2.fastq",
         S = "result/{sample}/filtered/{sample}_S.fastq"
-    threads: config["threads"]
+    threads: 4
     params:
         reference = config["ref_genome"]
     shell:
@@ -206,7 +206,7 @@ rule assemble_filtered:
 rule rename_contigs:
     input:
         "result/{sample}/assembly/contigs.fasta"
-    threads: config["threads"]
+    threads: 1
     output:
         temp("result/{sample}/assembly/contigs_renamed.fasta")
     shell:
@@ -218,7 +218,7 @@ rule rename_contigs:
 rule aggregate_contigs:
     input:
         expand("result/{sample}/assembly/contigs_renamed.fasta", sample = BASE_SAMPLES)
-    threads: config["threads"]
+    threads: 1
     output:
         "result/all_contigs.fasta"
     shell:
@@ -252,7 +252,7 @@ rule annotate_contigs:
 rule split_annotation_files:
     input:
         "result/all_contigs_annotated.tsv"
-    threads: config["threads"]
+    threads: 1
     output:
         expand("result/{sample}/annotation/diamond_output.tsv", sample = BASE_SAMPLES)
     shell:
@@ -284,7 +284,7 @@ rule parse_diamond_output:
     input:
         annotation = "result/{sample}/annotation/diamond_output.tsv",
         contigs = "result/{sample}/assembly/contigs.fasta"
-    threads: config["threads"]
+    threads: 1
     log: "logs/{sample}_diamond_parser.log"
     output:
         annotated = "result/{sample}/annotation/annotated_contigs.tsv",
@@ -302,12 +302,12 @@ rule parse_diamond_output:
 rule extract_viral_annotations:
     input:
         annotated = "result/{sample}/annotation/annotated_contigs.tsv",
-    threads: config["threads"]
+    threads: 1
     output:
         viral = "result/{sample}/annotation/viral_contigs.tsv"
     shell:
         '''
-        grep "Viruses$" {input.annotated} > {output.viral} || touch {output.viral}
+        grep -E "Adnaviria|Duplodnaviria|Monodnaviria|Riboviria|Ribozyviria|Varidnaviria" {input.annotated} > {output.viral} || touch {output.viral}
         '''
 
 rule map_reads_to_contigs:
@@ -318,7 +318,7 @@ rule map_reads_to_contigs:
         contigs = ancient("result/{sample}/assembly/contigs.fasta")
     output:
         "result/{sample}/mapping/contigs.bam"
-    threads: config["threads"]
+    threads: 4
     shell:
         """
         bwa index {input.contigs}
@@ -338,7 +338,7 @@ rule extract_specific_mapped:
         annotated = "result/{sample}/mapping/annotated_contigs.bam",
         unannotated = "result/{sample}/mapping/unannotated_contigs.bam",
         viral = "result/{sample}/mapping/viral_contigs.bam"
-    threads: config["threads"]
+    threads: 1
     shell:
         """
         #Create temporary BED file to extract the annotated mappings from the BAM of all mappings
@@ -365,7 +365,7 @@ rule count_reads_mapped:
         annotated = "result/{sample}/mapping/annotated_idxstats.tsv",
         unannotated = "result/{sample}/mapping/unannotated_idxstats.tsv",
         viral = "result/{sample}/mapping/viral_idxstats.tsv"
-    threads: config["threads"]
+    threads: 1
     shell:
         """
         #Extract readstats, remove lines with 0 mapped reads
@@ -384,7 +384,7 @@ rule extract_specific_contigs:
         annotated = "result/{sample}/mapping/annotated_contigs.fasta",
         unannotated = "result/{sample}/mapping/unannotated_contigs.fasta",
         viral = "result/{sample}/mapping/viral_contigs.fasta"
-    threads: config["threads"]
+    threads: 1
     shell:
         """
         seqkit grep -f <(cut -f1 {input.annotated}) {input.contigs} > {output.annotated}
