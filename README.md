@@ -45,7 +45,7 @@ Interesting files can be found here:
 1. **Quality control**
   - Merging and decompressing with zcat.
   - **Deduplication**: Remove duplicate reads from the uncompressed FASTQ files with [cd-hit-dup](https://github.com/weizhongli/cdhit/blob/master/doc/cdhit-user-guide.wiki).
-  - **Quality trimming**: Perform quality and sequence adapter trimming with [fast](https://github.com/OpenGene/fastp).
+  - **Quality trimming**: Perform quality and sequence adapter trimming with [fastp](https://github.com/OpenGene/fastp).
   - **Host filtering**: Remove reads that map to a host genome (e.g., human) with [bwa](https://github.com/lh3/bwa).
   
 2. **De novo assembly**
