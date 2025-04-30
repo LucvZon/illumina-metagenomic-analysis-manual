@@ -4,7 +4,7 @@ To view the fully fledged manual, please visit the [EMC-Viroscience website](htt
 
 Interesting files can be found here:
 
-- **workflow/Snakefile.smk**: This is the heart of the workflow. 
+- **workflow/snakefile_imam.smk**: This is the heart of the workflow. 
 - **scripts/prepare_project.py**: Script to setup your project directory.
 - **envs/environment.yml**: The conda environment used for the workflow.
 - **envs/imam_workflow.def**: The definition file used for container creation.
