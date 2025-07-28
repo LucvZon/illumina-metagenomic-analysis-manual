@@ -3,7 +3,7 @@
 
 STUDY_NAME = ""
 
-
+import shutil
 import pandas as pd
 import glob
 import os
@@ -291,7 +291,7 @@ rule parse_diamond_output:
         unannotated = "result/{sample}/annotation/unannotated_contigs.tsv"
     shell:
         '''
-        python /mnt/viro0002/workgroups_projects/Bioinformatics/scripts/post_process_diamond.py \
+        python /post_process_diamond_v1.0.py \
         -i {input.annotation} \
         -c {input.contigs} \
         -o {output.annotated} \
@@ -391,3 +391,29 @@ rule extract_specific_contigs:
         seqkit grep -f <(cut -f1 {input.unannotated}) {input.contigs} > {output.unannotated}
         seqkit grep -f <(cut -f1 {input.viral}) {input.contigs} > {output.viral}
         """
+
+### DESTROY .snakemake/ AFTER THE WORKFLOW HAS SUCCESFULLY FINISHED
+onsuccess:
+    """
+    This code runs only after the entire workflow completes successfully.
+    It removes the .snakemake directory.
+    """
+    print("Workflow finished successfully.")
+    snakemake_dir = ".snakemake" # The directory Snakemake creates
+
+    if os.path.exists(snakemake_dir):
+        try:
+            print(f"Attempting to remove {snakemake_dir} directory...")
+            shutil.rmtree(snakemake_dir)
+            print(f"Successfully removed {snakemake_dir}.")
+        except OSError as e:
+            print(f"Error removing {snakemake_dir}: {e}")
+    else:
+        print(f"{snakemake_dir} directory not found. Skipping removal.")
+
+onerror:
+    """
+    Optional: This code runs if the workflow fails at any point.
+    Useful for explicitly stating that cleanup WON'T happen.
+    """
+    print("Workflow failed. The .snakemake directory will NOT be removed for debugging.")
