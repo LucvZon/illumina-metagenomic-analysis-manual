@@ -6,6 +6,8 @@ From: continuumio/miniconda3
     ../envs/imam.tar.gz /imam.tar.gz
     ../python/prepare_project.py /prepare_project.py
     ../workflows/snakefile_imam.smk /snakefile_imam.smk
+    ../python/post_process_diamond_v1.0.py /post_process_diamond_v1.0.py
+    IMAM_VERSION /IMAM_VERSION
 
 
 %post
@@ -65,3 +67,34 @@ EOF
     # Optional: Handle LD_LIBRARY_PATH if needed
     # ENV_LIB_DIR="/opt/conda/envs/imam/lib"
     # export LD_LIBRARY_PATH="${ENV_LIB_DIR}:${LD_LIBRARY_PATH}"
+
+
+# --- A dedicated runscript for version and help information ---
+%runscript
+    #!/bin/bash
+    # This runscript is for informational purposes only.
+    # The main tools are intended to be run via 'singularity exec'.
+
+    # Check if the first argument is '--version'
+    if [ "$1" = "--version" ]; then
+        # If it is, print the version and exit.
+        cat /IMAM_VERSION
+        exit 0
+    fi
+
+    # If no valid flag is given, print a helpful usage message.
+    # The $SINGULARITY_CONTAINER variable is automatically set by Singularity.
+    echo "IMAM Workflow Container - Version: $(cat /IMAM_VERSION)"
+    echo "----------------------------------------------------"
+    echo "This container provides a two-step metagenomic analysis workflow."
+    echo
+    echo "Usage:"
+    echo "  singularity run $(basename $SINGULARITY_CONTAINER) --version    # To see this container's version"
+    echo
+    echo "Workflow Steps:"
+    echo "  1. Prepare project directory:"
+    echo "     singularity exec $(basename $SINGULARITY_CONTAINER) python /prepare_project.py -p <project_dir> ..."
+    echo
+    echo "  2. Run the Snakemake workflow:"
+    echo "     singularity exec $(basename $SINGULARITY_CONTAINER) snakemake --snakefile <project_dir>/Snakefile --cores <N>"
+    echo
