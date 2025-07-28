@@ -7,6 +7,91 @@ import pandas as pd
 import glob
 import subprocess
 import yaml
+import json # version checker
+import urllib.request # version checker
+from pathlib import Path # version checker
+
+# ==================================
+#           UPDATE CHECKER
+# ==================================
+
+def check_for_updates(repo_owner: str, repo_name: str):
+    """
+    Checks for a new version of the software on GitHub.
+
+    This function compares the local version (from /IMAM_VERSION) with the latest
+    release on GitHub. If a newer version is available, it notifies the user
+    and asks if they want to abort the script.
+
+    Args:
+        repo_owner (str): The owner of the GitHub repository (e.g., 'your_username').
+        repo_name (str): The name of the GitHub repository (e.g., 'naam-workflow').
+    """
+    # --- Define some colors for the output message for better visibility ---
+    class Colors:
+        YELLOW = '\033[93m'
+        GREEN = '\033[92m'
+        RED = '\033[91m'
+        ENDC = '\033[0m'
+
+    # 1. Get the local version from the file inside the container
+    local_version_file = Path("/IMAM_VERSION")
+    if not local_version_file.exists():
+        # If the file doesn't exist, we can't check, so we just skip.
+        return
+
+    local_version_str = local_version_file.read_text().strip()
+
+    # 2. Fetch the latest release from the GitHub API
+    api_url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/releases/latest"
+    try:
+        with urllib.request.urlopen(api_url, timeout=5) as response:
+            if response.status != 200:
+                # Handle cases like private repos or API rate limiting
+                return
+            data = json.loads(response.read().decode())
+            latest_version_str = data['tag_name']
+
+    except Exception:
+        # If there's any issue (no internet, API down), just fail silently.
+        # The user's workflow should not be blocked by the version check.
+        return
+
+    # 3. Compare the versions
+    # A simple helper to parse versions like 'v1.2.3' into comparable tuples (1, 2, 3)
+    def parse_version(v_str):
+        return tuple(map(int, v_str.lstrip('v').split('.')))
+
+    local_v = parse_version(local_version_str)
+    latest_v = parse_version(latest_version_str)
+
+    if latest_v > local_v:
+        # A newer version is available. Prompt the user.
+        # --- CHANGE 1: Add ENDC to the separator lines ---
+        print(f"\n{Colors.YELLOW}{'='*70}{Colors.ENDC}", file=sys.stderr)
+        print(f"{Colors.YELLOW}  WARNING: A new version of this workflow is available!{Colors.ENDC}", file=sys.stderr)
+        print(f"{Colors.YELLOW}{'-'*70}{Colors.ENDC}", file=sys.stderr)
+        print(f"  You are using version: {Colors.RED}{local_version_str}{Colors.ENDC}", file=sys.stderr)
+        print(f"  Latest version is:     {Colors.GREEN}{latest_version_str}{Colors.ENDC}", file=sys.stderr)
+        print(f"  Please update at: https://github.com/{repo_owner}/{repo_name}/releases", file=sys.stderr)
+        # --- Also add ENDC to the final separator line ---
+        print(f"{Colors.YELLOW}{'='*70}{Colors.ENDC}", file=sys.stderr)
+        
+        try:
+            # --- CHANGE 2: Color the input prompt string itself, ending with ENDC ---
+            prompt = f"  Do you want to abort the current setup to update? (y/n): {Colors.ENDC}"
+            answer = input(prompt).lower().strip()
+
+            if answer == 'y':
+                print(f"\n{Colors.RED}Aborting script. Please pull the latest container version.{Colors.ENDC}", file=sys.stderr)
+                sys.exit(1)
+            else:
+                # --- CHANGE 3: Add ENDC to the final message for a clean exit ---
+                print(f"Continuing with the current version...\n{Colors.ENDC}", file=sys.stderr)
+        except (EOFError, KeyboardInterrupt):
+            # Handle Ctrl+D or Ctrl+C during input as an abort
+            print(f"\n\n{Colors.RED}Aborting script.{Colors.ENDC}", file=sys.stderr)
+            sys.exit(1)
 
 parser = argparse.ArgumentParser(description="Interactive tool for setting up a Snakemake project.")
 parser.add_argument("-p", "--project_dir", help="Project directory path (default: current directory)", default=".") # current directory
@@ -15,6 +100,8 @@ parser.add_argument("-r", "--raw_fastq_dir", required=True, help="Directory cont
 parser.add_argument("-t", "--threads", required=False, help="Maximum number of threads for the Snakefile (default: 8)", default=8)
 
 args = parser.parse_args() # reads command from user
+
+check_for_updates(repo_owner="LucvZon", repo_name="illumina-metagenomic-analysis-manual")
 
 # 0. Project directory path
 project_dir = args.project_dir
@@ -76,6 +163,13 @@ raw_fastq_dir = os.path.abspath(raw_fastq_dir)
 r1_files = glob.glob(os.path.join(raw_fastq_dir, "*_R1_001.fastq.gz"))
 sample_data = []
 for r1_file_path in r1_files: # Use a different variable name to avoid confusion
+
+    # Check if "undetermined" is in the filename
+    base_filename = os.path.basename(r1_file_path)
+    if "undetermined" in base_filename.lower():
+        print(f" Skipping undetermined file: {base_filename}")
+        continue # Skip to the next R1 file
+
     r1_file_abs = os.path.abspath(r1_file_path)
     # Extract sample name from the original path or the absolute one, shouldn't matter
     sample_name = os.path.splitext(os.path.basename(r1_file_path))[0].split("_R1")[0]
@@ -87,7 +181,7 @@ for r1_file_path in r1_files: # Use a different variable name to avoid confusion
         print(f"Warning: Corresponding R2 file not found for {sample_name}")
         continue
 
-    # *** FIX HERE: Make the R2 path absolute before appending ***
+    # Make the R2 path absolute before appending
     r2_file_abs = os.path.abspath(r2_file_path)
 
     sample_data.append({"sample": sample_name, "fq1": r1_file_abs, "fq2": r2_file_abs}) # Use absolute paths for both
@@ -99,7 +193,7 @@ df.to_csv(tsv_file, sep="\t", index=False)
 print(f"Created sample configuration file: {tsv_file}")
 
 # 4. Generate general settings configuration (YAML)
-ref_genome = input("Enter path to reference genome (.fna): ")
+ref_genome = input("Enter path to reference genome (.fna / .fasta / .fa): ")
 # Check that the input .fna exists in the directory
 if not os.path.exists(ref_genome):
     print(f"Error: The file {ref_genome} does not exist. Please specify your input reference genome")
