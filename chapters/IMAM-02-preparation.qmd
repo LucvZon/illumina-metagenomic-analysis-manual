@@ -22,7 +22,7 @@ The singularity container needs an image file to activate the precompiled work e
 wget https://github.com/LucvZon/illumina-metagenomic-analysis-manual/releases/download/v1.0.2/imam_workflow.sif
 ```
 
-Or go to the [github page](https://github.com/LucvZon/illumina-metagenomic-analysis-manual/releases/tag/v1.0.1){target="_blank"} and manually download it there, then transfer it to your HPC system.
+Or go to the [github page](https://github.com/LucvZon/illumina-metagenomic-analysis-manual/releases/tag/v1.0.2){target="_blank"} and manually download it there, then transfer it to your HPC system.
 
 ### Verify container
 
