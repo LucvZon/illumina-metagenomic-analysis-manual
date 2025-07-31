@@ -26,7 +26,7 @@ diamond blastx \
 -   `{db}` is the protein database to be searched against.
 -   `{output}` is a .tsv file containing the annotation results.
 
-Multiple different databases can be found in: `\\cifs.research.erasmusmc.nl\viro0002\workgroups_projects\Bioinformatics\DB`
+Multiple different databases can be found in: `/mnt/viro0002-data/workgroups_projects/Bioinformatics/DB`
 
 ## Split annotation files
 
@@ -63,12 +63,12 @@ rmdir tmp_split
 
 ## Parsing diamond output
 
-Now we will process the DIAMOND output files with a custom Python script called **post_process_diamond.py**. This script will further enrich taxonomic information for each contig based on the DIAMOND alignment results. If a contig has multiple matches in the database, it will select the best hit based on a combined score of bitscore and length. Lastly, it separates the contigs into two lists: those that were successfully annotated and unannotated.
+Now we will process the DIAMOND output files with a custom Python script called **post_process_diamond_v1.0.py**. This script will further enrich taxonomic information for each contig based on the DIAMOND alignment results. If a contig has multiple matches in the database, it will select the best hit based on a combined score of bitscore and length. Lastly, it separates the contigs into two lists: those that were successfully annotated and unannotated.
 
 This python script utilizes the [biopython library](https://biopython.org/){target="_blank"}.
 
 ``` bash
-python /mnt/viro0002/workgroups_projects/Bioinformatics/scripts/post_process_diamond.py \
+python /mnt/viro0002-data/workgroups_projects/Bioinformatics/scripts/post_process_diamond_v1.0.py \
 -i {input.annotation} \
 -c {input.contigs} \
 -o {output.annotated} \
