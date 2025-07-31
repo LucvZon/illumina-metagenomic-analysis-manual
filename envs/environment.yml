@@ -1,18 +1,20 @@
 channels:
-- conda-forge
-- bioconda
-- defaults
+  - conda-forge
+  - bioconda
 dependencies:
-- conda-forge::python=3.12
-- conda-forge::libdeflate=1.23
-- None::htslib=1.21
-- bioconda::snakemake=8.30.0
-- bioconda::diamond=2.1.11
-- bioconda::spades=4.1.0
-- bioconda::cd-hit-auxtools=4.8.1
-- bioconda::fastp=0.24.0
-- bioconda::bwa=0.7.18
-- bioconda::seqkit=2.10.0
-- conda-forge::biopython=1.85
-- bioconda::samtools=1.21
+  # Core
+  - conda-forge::python=3.12
+
+  # Other tools
+  - conda-forge::libdeflate
+  - bioconda::htslib
+  - bioconda::snakemake
+  - bioconda::diamond
+  - bioconda::spades
+  - bioconda::cd-hit-auxtools
+  - bioconda::fastp
+  - bioconda::bwa
+  - bioconda::seqkit
+  - conda-forge::biopython
+  - bioconda::samtools
 name: imam
