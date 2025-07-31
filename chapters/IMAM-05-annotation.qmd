@@ -26,7 +26,11 @@ diamond blastx \
 -   `{db}` is the protein database to be searched against.
 -   `{output}` is a .tsv file containing the annotation results.
 
-Multiple different databases can be found in: `/mnt/viro0002-data/workgroups_projects/Bioinformatics/DB`
+Multiple different databases can be found in:
+
+```
+/mnt/viro0002-data/workgroups_projects/Bioinformatics/DB
+```
 
 ## 4.2 Split annotation files {.unnumbered}
 
