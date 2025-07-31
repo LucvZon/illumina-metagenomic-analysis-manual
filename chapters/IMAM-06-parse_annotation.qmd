@@ -2,7 +2,7 @@
 
 We will conclude the pipeline with various steps which will create valuable data files for further downstream analysis.
 
-## Extract viral annotations
+## 5.1 Extract viral annotations {.unnumbered}
 
 A basic grep command can be used to extract contigs that have been annotated as viral from the annotation file in **step 4.3**.
 
