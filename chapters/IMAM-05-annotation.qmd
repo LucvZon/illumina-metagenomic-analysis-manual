@@ -1,6 +1,6 @@
-# Taxonomic classification
+# 4. Taxonomic classification {.unnumbered}
 
-## Diamond
+## 4.1 Diamond {.unnumbered}
 
 Now we will annotate the aggregated contigs by assigning taxonomic classifications to them based on sequence similarity to known proteins in a database using [diamond blastx](https://github.com/bbuchfink/diamond){target="_blank"}.
 
@@ -28,7 +28,7 @@ diamond blastx \
 
 Multiple different databases can be found in: `/mnt/viro0002-data/workgroups_projects/Bioinformatics/DB`
 
-## Split annotation files
+## 4.2 Split annotation files {.unnumbered}
 
 We will split the combined annotation file back into individual annotation files for each sample. This step can be seen as optional if you are dealing with a single sample.
 
@@ -61,7 +61,7 @@ rmdir tmp_split
 -   `{input}` is the combined annotation file from **step 4.1**.
 -   `{output}` is a directory path. This directory will be automatically filled with subdirectories for each sample. In each subdirectory you will find a diamond_out.tsv file.
 
-## Parsing diamond output
+## 4.3 Parsing diamond output {.unnumbered}
 
 Now we will process the DIAMOND output files with a custom Python script called **post_process_diamond_v1.0.py**. This script will further enrich taxonomic information for each contig based on the DIAMOND alignment results. If a contig has multiple matches in the database, it will select the best hit based on a combined score of bitscore and length. Lastly, it separates the contigs into two lists: those that were successfully annotated and unannotated.
 

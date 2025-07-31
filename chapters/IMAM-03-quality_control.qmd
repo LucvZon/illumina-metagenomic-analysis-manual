@@ -1,4 +1,4 @@
-# Quality control
+# 2. Quality control {.unnumbered}
 
 ::: callout-warning
 # Important!
@@ -37,7 +37,7 @@ To use the required tools, activate the Singularity container as follows:
 singularity shell imam_workflow.sif
 ```
 
-## Merging and decompressing FASTQ
+## 2.1 Merging and decompressing FASTQ {.unnumbered}
 
 Any file in linux can be pasted to another file using the cat command. zcat in addition also unzips gzipped files (e.g. .fastq.gz extension). If your files are already unzipped, use cat instead.
 
@@ -52,7 +52,7 @@ zcat {input.folder}/{sample}_R2_001.fastq.gz > {output.folder}/{sample}_R2.fastq
 -   `{sample}` is the name of your sample.
 -   `{output.folder}` is where your decompressed .fastq files will be stored.
 
-## Deduplicate reads
+## 2.2 Deduplicate reads {.unnumbered}
 
 This step removes duplicate reads from the uncompressed FASTQ files. Duplicate reads can arise during PCR amplification or sequencing and can skew downstream analyses. We'll use the cd-hit-dup program to identify and remove these duplicates.
 
@@ -68,7 +68,7 @@ rm {output.dir}/*.clstr
 -   `{output.R1}` and `{output.R2}` are your deduplicated .fastq reads. Think of where you want to store your results, something like `results/dedup/` will be sufficient, so output.R1 turns into `result/dedup/SampleName_R1.fastq`, etc.
 -   `{output.dir}` This should be pointed to wherever your deduplicated reads are stored.
 
-## Running fastp quality control software
+## 2.3 Running fastp quality control software {.unnumbered}
 
 The [fastp](https://github.com/OpenGene/fastp){target="_blank"} software is a very fast multipurpose quality control software to perform quality and sequence adapter trimming for Illumina short-read and Nanopore long-read data.
 
@@ -99,7 +99,7 @@ fastp -i {input.R1} -I {input.R2} \
 `{threads}` is a recurring setting for the number of CPUs to use for the processing. On a laptop this will be less (e.g. 8), on an HPC you may be able to use 64 or more CPUs for processing. However, how much performance increase you get depends on the software.
 :::
 
-## Host filtering
+## 2.4 Host filtering {.unnumbered}
 
 This step removes reads that map to a host genome (e.g., human). This is important if you're studying metagenomes from a host-associated environment (e.g., gut microbiome, skin surface).
 

@@ -1,4 +1,4 @@
-# Extracting Viral Sequences and Analyzing Mapped Reads
+# 5. Extracting Viral Sequences and Analyzing Mapped Reads {.unnumbered}
 
 We will conclude the pipeline with various steps which will create valuable data files for further downstream analysis.
 
@@ -13,7 +13,7 @@ grep "Viruses$" {input.annotated} > {output.viral} || touch {output.viral}
 -   `{input.annotated}` is the annotation file from **step 4.3**.
 -   `{output.viral}` contains all of your viral contigs.
 
-## Mapping reads to contigs
+## 5.2 Mapping reads to contigs {.unnumbered}
 
 We can map the quality-filtered and host-filtered reads back to the assembled contigs to quantify the abundance of different contigs in each sample. We will create a mapping file for paired reads (R1 and R2) and singletons (S) and then merge these two files together.
 
@@ -32,7 +32,7 @@ rm {output.paired}/tmp_paired.bam {output.S}/tmp_singlets.bam
 -   `{output.merged}` is the directory for the merged .bam file. 
 
 
-## Extract mapped reads
+## 5.3 Extract mapped reads {.unnumbered}
 
 We will extract the reads for each annotation file that we've created.
 
@@ -58,7 +58,7 @@ rm {output}/tmp.bed
 -   `{output.annotated}`, `{output.unannotated}` and `{output.viral}` are .bam files for each annotation input.
 
 
-## Count mapped reads
+## 5.4 Count mapped reads {.unnumbered}
 
 Next we count the number of reads that mapped to each contig in the annotated, unannotated, and viral BAM files.
 
@@ -71,7 +71,7 @@ samtools view -bF2052 {input.viral} | seqkit bam -Qc - | awk '$2 != 0 {{print}}'
 -   `{input.annotated}`, `{input.unannotated}` and `{input.viral}` are the .bam output files from **step 5.3**.
 -   `{output.annotated}`, `{output.unannotated}` and `{output.viral}` are .tsv files containing the read counts for each .bam file
 
-## Extract contigs
+## 5.5 Extract contigs {.unnumbered}
 
 Lastly, we will extract contigs for the annotated, unannotated and viral contigs. 
 

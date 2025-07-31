@@ -1,6 +1,6 @@
-# De novo assembly
+# 3. De novo assembly {.unnumbered}
 
-## metaSPades
+## 3.1 metaSPades {.unnumbered}
 
 We will perform de novo assembly of the host-filtered reads to create contigs (longer, assembled sequences) with [SPades](https://github.com/ablab/spades){target="_blank"}.
 
@@ -18,7 +18,7 @@ If you do not want to include singleton reads for the assembly, then simply remo
 -   `{input.R1}`, `{input.R2}` and `{input.S}` are host-filtered FASTQ files (R1, R2, and S) from **step 2.3**.
 -   `{output}` defines the directory where the assembly results will be stored.
 
-## Renaming contigs:
+## 3.2 Renaming contigs {.unnumbered}
 
 We will add sample names to the beginning of each contig name. This will make sure that each sample's contig names are unique before we start aggregating contigs. If you are only dealing with a single sample, then this step can be seen as optional. 
 
@@ -30,7 +30,7 @@ seqkit replace -p "^" -r "{sample}_" {input} > {output}
 -   `{input}` is your contig file from **step 3.1**
 -   `{output}` is fasta file with the renamed contig
 
-## Aggregating contigs:
+## 3.3 Aggregating contigs {.unnumbered}
 
 Next we will combine all renamed contigs into a single fasta file so we can perform taxonomic annotation across all samples in one go. Once again, this step can be seen as optional if you have a single sample. 
 
