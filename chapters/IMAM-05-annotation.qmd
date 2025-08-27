@@ -4,7 +4,7 @@
 
 Now we will annotate the aggregated contigs by assigning taxonomic classifications to them based on sequence similarity to known proteins in a database using [diamond blastx](https://github.com/bbuchfink/diamond){target="_blank"}.
 
-Please take note of the following blastx parameters: `-f (--outfmt)`, `-b (--block-size)` and `-c (--index-chunks)`, documentation can be found [here](http://diamondsearch.org/forums/index.php?pages/command_line_options/){target="_blank"}.
+Please take note of the following blastx parameters: `-f (--outfmt)`, `-b (--block-size)` and `-c (--index-chunks)`, documentation can be found [here](https://github.com/bbuchfink/diamond/wiki/3.-Command-line-options){target="_blank"}.
 
 The `-f 6` parameter will ensure the output is in a tabular format. The `6` may be followed by a space-separated list of various keywords, each specifying a field of the output.
 

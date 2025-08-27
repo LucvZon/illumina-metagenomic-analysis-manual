@@ -183,6 +183,13 @@ def parse_diamond(infile, outfile, total):
                         print(contig.format(), file = outfile)
                 contig = contig_annotation(contig_id)
                 contig.add_annotation(line_split)
+        
+        # Flush last contig after loop    
+        if contig.contig_id is not None:
+            output = contig.format()
+            if output is not None:
+                print(output, file = outfile)           
+
     return(annotated_set)
 
 if __name__ == "__main__":

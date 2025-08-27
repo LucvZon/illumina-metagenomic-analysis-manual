@@ -6,15 +6,16 @@ dependencies:
   - conda-forge::python=3.12
 
   # Other tools
-  - conda-forge::libdeflate
-  - bioconda::htslib
-  - bioconda::snakemake
-  - bioconda::diamond
-  - bioconda::spades
-  - bioconda::cd-hit-auxtools
-  - bioconda::fastp
-  - bioconda::bwa
-  - bioconda::seqkit
-  - conda-forge::biopython
-  - bioconda::samtools
+  - conda-forge::libdeflate=1.22
+  - bioconda::htslib=1.22.1
+  - bioconda::snakemake=9.9.0
+  - bioconda::diamond=2.1.13
+  - bioconda::spades=4.2.0
+  - bioconda::cd-hit-auxtools=4.8.1
+  - bioconda::fastp=1.0.1
+  - bioconda::bwa=0.7.19
+  - bioconda::seqkit=2.10.0
+  - conda-forge::biopython=1.85
+  - bioconda::samtools=1.22.1
+  - conda-forge::rsync=3.4.1
 name: imam

@@ -8,6 +8,7 @@ import pandas as pd
 import glob
 import os
 import re
+import sys
 
 # Load general configuration
 configfile: "config.yaml"
@@ -75,8 +76,10 @@ rule all:
         expand("result/{sample}/mapping/viral_idxstats.tsv", sample=BASE_SAMPLES),
         expand("result/{sample}/mapping/annotated_contigs.fasta", sample=BASE_SAMPLES),
         expand("result/{sample}/mapping/unannotated_contigs.fasta", sample=BASE_SAMPLES),
-        expand("result/{sample}/mapping/viral_contigs.fasta", sample=BASE_SAMPLES)
-
+        expand("result/{sample}/mapping/viral_contigs.fasta", sample=BASE_SAMPLES),
+        expand("result/readstats/{statfile}.tsv", statfile=["raw", "dedup", "qc", "filter", "mapped", "viral"]),
+        "result/readstats/ALL_STATS_COMBINED.tsv",
+        "result/final_processed_annotation.tsv"
 
 rule merge_and_unzip_fastq:
     message: # Add a message for clarity
@@ -392,25 +395,220 @@ rule extract_specific_contigs:
         seqkit grep -f <(cut -f1 {input.viral}) {input.contigs} > {output.viral}
         """
 
+### READ STATISTICS ###
+
+# --- Step 1: Count reads per sample at each major step ---
+
+rule count_reads_raw:
+    input:
+        R1 = "result/{sample}/{sample}_R1.fastq",
+        R2 = "result/{sample}/{sample}_R2.fastq"
+    output:
+        temp("result/{sample}/readstats/raw.count")
+    shell:
+        """
+        R1_COUNT=$(( $(cat {input.R1} | wc -l) / 4 ))
+        R2_COUNT=$(( $(cat {input.R2} | wc -l) / 4 ))
+        echo -e "{wildcards.sample}\t$R1_COUNT\t$R2_COUNT" > {output}
+        """
+
+rule count_reads_dedup:
+    input:
+        R1 = "result/{sample}/dedup/{sample}_R1.fastq",
+        R2 = "result/{sample}/dedup/{sample}_R2.fastq"
+    output:
+        temp("result/{sample}/readstats/dedup.count")
+    shell:
+        """
+        R1_COUNT=$(( $(cat {input.R1} | wc -l) / 4 ))
+        R2_COUNT=$(( $(cat {input.R2} | wc -l) / 4 ))
+        echo -e "{wildcards.sample}\t$R1_COUNT\t$R2_COUNT" > {output}
+        """
+
+rule count_reads_qc:
+    input:
+        R1 = "result/{sample}/dedup_qc/{sample}_R1.fastq",
+        R2 = "result/{sample}/dedup_qc/{sample}_R2.fastq",
+        S = "result/{sample}/dedup_qc/{sample}_S.fastq"
+    output:
+        temp("result/{sample}/readstats/qc.count")
+    shell:
+        """
+        R1_COUNT=$(( $(cat {input.R1} | wc -l) / 4 ))
+        R2_COUNT=$(( $(cat {input.R2} | wc -l) / 4 ))
+        S_COUNT=$(( $(cat {input.S} | wc -l) / 4 ))
+        echo -e "{wildcards.sample}\t$R1_COUNT\t$R2_COUNT\t$S_COUNT" > {output}
+        """
+
+rule count_reads_filter:
+    input:
+        R1 = "result/{sample}/filtered/{sample}_R1.fastq",
+        R2 = "result/{sample}/filtered/{sample}_R2.fastq",
+        S = "result/{sample}/filtered/{sample}_S.fastq"
+    output:
+        temp("result/{sample}/readstats/filter.count")
+    shell:
+        """
+        R1_COUNT=$(( $(cat {input.R1} | wc -l) / 4 ))
+        R2_COUNT=$(( $(cat {input.R2} | wc -l) / 4 ))
+        S_COUNT=$(( $(cat {input.S} | wc -l) / 4 ))
+        echo -e "{wildcards.sample}\t$R1_COUNT\t$R2_COUNT\t$S_COUNT" > {output}
+        """
+
+rule count_mapped_reads:
+    input:
+        "result/{sample}/mapping/contigs.bam"
+    output:
+        temp("result/{sample}/readstats/mapped.count")
+    shell:
+        """
+        # Count primary mapped reads only
+        # -F 2308: exclude supplementary, secondary, unmapped
+        # -f 65: require read 1, paired
+        # -f 129: require read 2, paired
+        # -F 2309: exclude supplementary, secondary, unmapped, paired (i.e. get singletons)
+        R1_COUNT=$(samtools view -c -F 2308 -f 65 {input})
+        R2_COUNT=$(samtools view -c -F 2308 -f 129 {input})
+        S_COUNT=$(samtools view -c -F 2309 {input})
+        echo -e "{wildcards.sample}\t$R1_COUNT\t$R2_COUNT\t$S_COUNT" > {output}
+        """
+
+rule count_reads_viral:
+    input:
+        "result/{sample}/mapping/viral_contigs.bam"
+    output:
+        temp("result/{sample}/readstats/viral.count")
+    shell:
+        """
+        # Count primary mapped reads only, using the same logic as for all mapped reads
+        R1_COUNT=$(samtools view -c -F 2308 -f 65 {input})
+        R2_COUNT=$(samtools view -c -F 2308 -f 129 {input})
+        S_COUNT=$(samtools view -c -F 2309 {input})
+        echo -e "{wildcards.sample}\t$R1_COUNT\t$R2_COUNT\t$S_COUNT" > {output}
+        """
+
+# --- Step 2: Aggregate counts from all samples into per-step reports ---
+
+rule aggregate_pe_stats:
+    input:
+        expand("result/{sample}/readstats/{step}.count", sample=BASE_SAMPLES, step="{step}")
+    output:
+        "result/readstats/{step,raw|dedup}.tsv"
+    shell:
+        """
+        echo -e "Sample\tR1\tR2\tTotal" > {output}
+        cat {input} | awk 'BEGIN{{OFS="\\t"}} {{print $1, $2, $3, $2+$3}}' >> {output}
+        """
+
+rule aggregate_pes_stats:
+    input:
+        expand("result/{sample}/readstats/{step}.count", sample=BASE_SAMPLES, step="{step}")
+    output:
+        "result/readstats/{step,qc|filter|mapped|viral}.tsv"
+    shell:
+        """
+        echo -e "Sample\tR1\tR2\tS\tTotal" > {output}
+        cat {input} | awk 'BEGIN{{OFS="\\t"}} {{print $1, $2, $3, $4, $2+$3+$4}}' >> {output}
+        """
+
+# --- Step 3: Combine all per-step reports into a single summary file ---
+
+rule combine_all_stats:
+    input:
+        raw="result/readstats/raw.tsv",
+        dedup="result/readstats/dedup.tsv",
+        qc="result/readstats/qc.tsv",
+        filter="result/readstats/filter.tsv",
+        mapped="result/readstats/mapped.tsv",
+        viral="result/readstats/viral.tsv"
+    output:
+        "result/readstats/ALL_STATS_COMBINED.tsv"
+    shell:
+        """
+        echo -e "Sample\tStep\tR1\tR2\tS\tTotal" > {output}
+        # Process files with 2 read types (R1, R2)
+        tail -n +2 {input.raw} | awk 'BEGIN {{OFS="\\t"}} {{print $1, "raw", $2, $3, "-", $4}}' >> {output}
+        tail -n +2 {input.dedup} | awk 'BEGIN {{OFS="\\t"}} {{print $1, "dedup", $2, $3, "-", $4}}' >> {output}
+        # Process files with 3 read types (R1, R2, S)
+        tail -n +2 {input.qc} | awk 'BEGIN {{OFS="\\t"}} {{print $1, "qc", $2, $3, $4, $5}}' >> {output}
+        tail -n +2 {input.filter} | awk 'BEGIN {{OFS="\\t"}} {{print $1, "filter", $2, $3, $4, $5}}' >> {output}
+        tail -n +2 {input.mapped} | awk 'BEGIN {{OFS="\\t"}} {{print $1, "mapped", $2, $3, $4, $5}}' >> {output}
+        tail -n +2 {input.viral} | awk 'BEGIN {{OFS="\\t"}} {{print $1, "viral", $2, $3, $4, $5}}' >> {output}
+        """
+
+### FINAL ANNOTATION REPORT ###
+
+rule create_per_sample_annotation_with_counts:
+    input:
+        annotation = "result/{sample}/annotation/annotated_contigs.tsv",
+        counts = "result/{sample}/mapping/annotated_idxstats.tsv"
+    output:
+        temp("result/{sample}/annotation/annotated_with_counts.tsv")
+    shell:
+        """
+        # This awk script is now robust to changes in the number of columns from the annotation file.
+        awk 'BEGIN {{ FS="\\t"; OFS="\\t" }}
+             FNR==NR && FNR > 1 {{ read_counts[$1] = $2; next }}
+             FNR!=NR {{
+                # Extract contig length from the contig ID (column 1)
+                split($1, parts, "_");
+                contig_len = parts[4];
+                
+                # Get the read count, defaulting to 0 if not found
+                count = ($1 in read_counts) ? read_counts[$1] : 0;
+                
+                # Print the new leading columns: Sample, original Contig_ID, extracted Contig_Length and Read_Count
+                printf "%s\\t%s\\t%s\\t%s", "{wildcards.sample}", $1, contig_len, count;
+                
+                # Loop through and print all the original annotation columns, from column 2 to the end
+                for (i=2; i<=NF; i++) {{
+                    printf "\\t%s", $i;
+                }}
+                
+                # Print a newline character to finish the line
+                printf "\\n";
+             }}' {input.counts} {input.annotation} > {output}
+        """
+
+rule aggregate_final_annotation:
+    input:
+        expand("result/{sample}/annotation/annotated_with_counts.tsv", sample=BASE_SAMPLES)
+    output:
+        "result/final_processed_annotation.tsv"
+    shell:
+        """
+        # Create the full, correct header reflecting all columns from DIAMOND, the python script, and our additions.
+        # The order MUST match the output of the awk script in the rule above.
+        echo -e "Sample\\tContig_ID\\tContig_Length\\tRead_Count\\tsseqid\\tpident\\tlength\\tmismatch\\tgapopen\\tqstart\\tqend\\tsstart\\tsend\\tevalue\\tbitscore\\tstaxids\\ttaxon_name\\tspecies\\tgenus\\tfamily\\torder\\tclass\\tphylum\\tkingdom\\tsuperkingdom" > {output}
+        
+        # Concatenate all the per-sample files into the final report.
+        cat {input} >> {output}
+        """
+		
 ### DESTROY .snakemake/ AFTER THE WORKFLOW HAS SUCCESFULLY FINISHED
 onsuccess:
     """
     This code runs only after the entire workflow completes successfully.
-    It removes the .snakemake directory.
+    It launches a detached, background process to remove the .snakemake
+    directory a few seconds after the main workflow process exits.
+    This avoids the "file handle in use" race condition.
     """
+    import subprocess
+    import shlex
+
     print("Workflow finished successfully.")
-    snakemake_dir = ".snakemake" # The directory Snakemake creates
+    print("Spawning a detached cleanup process to remove .snakemake directory in a few seconds...")
 
-    if os.path.exists(snakemake_dir):
-        try:
-            print(f"Attempting to remove {snakemake_dir} directory...")
-            shutil.rmtree(snakemake_dir)
-            print(f"Successfully removed {snakemake_dir}.")
-        except OSError as e:
-            print(f"Error removing {snakemake_dir}: {e}")
-    else:
-        print(f"{snakemake_dir} directory not found. Skipping removal.")
-
+    cleanup_script = "import time, shutil; time.sleep(2); shutil.rmtree('.snakemake', ignore_errors=True)"
+    command = shlex.split(f'{sys.executable} -c "{cleanup_script}"')
+    
+    subprocess.Popen(
+        command,
+        start_new_session=True,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL
+    )
+    
 onerror:
     """
     Optional: This code runs if the workflow fails at any point.

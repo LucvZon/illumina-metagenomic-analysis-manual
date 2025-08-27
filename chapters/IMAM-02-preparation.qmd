@@ -19,10 +19,10 @@ This workflow is distributed as a self-contained Singularity container image, wh
 The singularity container needs an image file to activate the precompiled work environment. You can download the required workflow image file (imam_workflow.sif) directly through the terminal via:
 
 ``` bash
-wget https://github.com/LucvZon/illumina-metagenomic-analysis-manual/releases/download/v1.0.2/imam_workflow.sif
+wget https://github.com/LucvZon/illumina-metagenomic-analysis-manual/releases/download/v1.0.3/imam_workflow.sif
 ```
 
-Or go to the [github page](https://github.com/LucvZon/illumina-metagenomic-analysis-manual/releases/tag/v1.0.2){target="_blank"} and manually download it there, then transfer it to your HPC system.
+Or go to the [github page](https://github.com/LucvZon/illumina-metagenomic-analysis-manual/releases/tag/v1.0.3){target="_blank"} and manually download it there, then transfer it to your HPC system.
 
 ## 1.3 Verify container {.unnumbered}
 
