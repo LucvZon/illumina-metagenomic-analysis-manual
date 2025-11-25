@@ -10,6 +10,14 @@ import os
 import re
 import sys
 
+# --- Print container version to the log for immediate feedback ---
+try:
+    with open("/IMAM_VERSION", "r") as f:
+        container_version = f.read().strip()
+    print(f"--- IMAM Workflow running with container version: {container_version} ---", flush=True)
+except FileNotFoundError:
+    print("--- WARNING: Could not determine container version. /IMAM_VERSION not found. ---", flush=True)
+
 # Load general configuration
 configfile: "config.yaml"
 
@@ -70,6 +78,7 @@ print(f"Fastq Files Per Base Sample: {fastq_files_for_base_sample}")
 
 rule all:
     input:
+        "result/used_container_version.txt",
         # Expand based on the unique BASE samples
         expand("result/{sample}/mapping/annotated_idxstats.tsv", sample=BASE_SAMPLES),
         expand("result/{sample}/mapping/unannotated_idxstats.tsv", sample=BASE_SAMPLES),
@@ -80,6 +89,16 @@ rule all:
         expand("result/readstats/{statfile}.tsv", statfile=["raw", "dedup", "qc", "filter", "mapped", "viral"]),
         "result/readstats/ALL_STATS_COMBINED.tsv",
         "result/final_processed_annotation.tsv"
+
+rule record_container_version:
+    message:
+        "Recording the IMAM container version used for this run."
+    output:
+        "result/used_container_version.txt"
+    shell:
+        """
+        cat /IMAM_VERSION > {output}
+        """
 
 rule merge_and_unzip_fastq:
     message: # Add a message for clarity
