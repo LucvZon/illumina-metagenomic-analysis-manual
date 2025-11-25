@@ -54,7 +54,7 @@ Interesting files can be found here:
     - Perform de novo assembly of the host-filtered reads to create contigs with [SPades](https://github.com/ablab/spades).
 
 3.  **Taxonomic classification**
-  - Annotate the aggregated contigs by assigning taxonomic classifications to them based on sequence similarity to known proteins in a database using [diamond blastx](https://github.com/bbuchfink/diamond).
+    - Annotate the aggregated contigs by assigning taxonomic classifications to them based on sequence similarity to known proteins in a database using [diamond blastx](https://github.com/bbuchfink/diamond).
 
 4.  **Extracting Viral Sequences and Analyzing Mapped Reads**
     - Extract contigs for annotated, unannotated and viral contigs.
