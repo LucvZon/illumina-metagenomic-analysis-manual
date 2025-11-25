@@ -1,7 +1,29 @@
 # Introduction {.unnumbered}
 
-Welcome to the Illumina metagenomic data analysis manual. This manual contains a step by step guide for performing quality control, filtering host sequences, assembling reads into contigs, annotating the contigs, and then extracing viral contigs and their corresponding reads. In the final chapter of the manual we will show how to automate all of these steps into a single pipeline for speed and convenience.
+Welcome to the Illumina metagenomic data analysis manual. This documentation covers the **IMAM** workflow: an illumina metagenomic pipeline designed for quality control, filtering host sequences, assembling reads into contigs, annotating the contigs, and then extracing viral contigs and their corresponding reads.
 
-::: callout-tip
-If you are just interested in running the automated workflow, then you only have to check out the chapters 'Preparation' and 'Automating data analysis'.
-:::
+This manual is divided into two parts:
+
+1.  **Quick Start:** How to set up and run the automated pipeline immediately.
+2.  **Manual Execution:** A detailed breakdown of the underlying bioinformatic steps (Under the hood).
+
+## Workflow Summary
+
+The pipeline performs the following steps:
+
+1.  **Quality control**
+    * Merging and decompressing with zcat.
+    * **Deduplication**: Remove duplicate reads from the uncompressed FASTQ files with [cd-hit-dup](https://github.com/weizhongli/cdhit/blob/master/doc/cdhit-user-guide.wiki).
+    * **Quality trimming**: Perform quality and sequence adapter trimming with [fastp](https://github.com/OpenGene/fastp).
+    * **Host filtering**: Remove reads that map to a host genome (e.g., human) with [bwa](https://github.com/lh3/bwa).
+  
+2. **De novo assembly**
+    * Perform de novo assembly of the host-filtered reads to create contigs with [SPades](https://github.com/ablab/spades).
+
+3. **Taxonomic classification**
+    * Annotate the aggregated contigs by assigning taxonomic classifications to them based on sequence similarity to known proteins in a database using [diamond blastx](https://github.com/bbuchfink/diamond).
+
+4. **Extracting Viral Sequences and Analyzing Mapped Reads**
+    * Extract contigs for annotated, unannotated and viral contigs.
+    * Map the quality-filtered and host-filtered reads back to the assembled contigs to quantify the abundance of different contigs in each sample.
+    * Extract and count mapped reads for each annotation file.

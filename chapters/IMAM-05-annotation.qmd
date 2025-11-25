@@ -1,4 +1,4 @@
-# 4. Taxonomic classification {.unnumbered}
+# 4. Manual: Taxonomic classification {.unnumbered}
 
 ## 4.1 Diamond {.unnumbered}
 

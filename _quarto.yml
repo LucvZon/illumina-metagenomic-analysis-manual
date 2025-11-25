@@ -9,12 +9,11 @@ book:
   date: "03/13/2025"
   chapters:
     - index.qmd
-    - chapters/IMAM-02-preparation.qmd
+    - chapters/IMAM-02-quick_start.qmd
     - chapters/IMAM-03-quality_control.qmd
     - chapters/IMAM-04-assembly.qmd
     - chapters/IMAM-05-annotation.qmd
     - chapters/IMAM-06-parse_annotation.qmd
-    - chapters/IMAM-07-illumina_hpc.qmd
 
 toc: true
 number-sections: true

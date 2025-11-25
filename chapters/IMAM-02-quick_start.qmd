@@ -1,0 +1,131 @@
+# 1. Quick Start {.unnumbered}
+
+This chapter guides you through setting up the environment and executing the automated pipeline.
+
+::: callout-warning
+# Important!
+
+In the following sections whenever a **"parameter"** in brackets `{}` is shown, the intention is to fill in your own filename or value. Each parameter will be explained in the section in detail.
+:::
+
+::: callout-tip
+Notice the small *"Copy to Clipboard"* button on the right hand side of each code chunk, this can be used to copy the code.
+:::
+
+## 1.1 Singularity Setup {.unnumbered}
+
+The workflow is distributed as a self-contained Singularity container image, which includes all necessary software dependencies and helper scripts.
+
+**Prerequisites:**
+[Singularity/Apptainer](https://docs.sylabs.io/guides/latest/user-guide/){target="_blank"} version 3.x or later must be installed on your system. If you are working with a High Performance Computing (HPC) system, this is likely already installed. Try writing `singularity --help` in your terminal (that’s connected to the HPC system) and see if the command is recognized.
+
+## 1.2 Download the Image {.unnumbered}
+
+Download the required workflow image file (`imam_workflow.sif`) directly through the terminal:
+
+``` bash
+wget https://github.com/LucvZon/illumina-metagenomic-analysis-manual/releases/latest/download/imam_workflow.sif
+```
+
+Or go to the [github page](https://github.com/LucvZon/illumina-metagenomic-analysis-manual/releases/latest){target="_blank"} and manually download it there, then transfer it to your HPC system.
+
+## 1.3 Verify Container {.unnumbered}
+
+You can verify the download by checking the container version or starting an interactive shell.
+
+``` bash
+# Check version
+singularity run imam_workflow.sif --version
+
+# Start interactive shell
+singularity shell imam_workflow.sif
+```
+
+`singularity shell imam_workflow.sif` will drop you into a shell running inside the container. The conda environment needed for this workflow is automatically active on start-up of the interactive shell. All the tools of the conda environment will therefore be ready to use.
+
+Please note that you do not have to run `conda activate {environment}` to activate the environment – everything is inside imam_workflow.sif. If you're curious about the conda environment we're using, you can check it out [here](https://github.com/LucvZon/illumina-metagenomic-analysis-manual/blob/main/envs/environment.yml){target="_blank"}
+
+## 1.4 Project Setup
+
+We use a tool called [Snakemake](https://snakemake.readthedocs.io/en/stable/){target="_blank"} to automate the analysis. To simplify the creation of the required project directory, the container includes a helper script called `prepare_project.py`. This script automates the creation of the project directory, the sample configuration file (`sample.tsv`), and the general settings configuration file (`config.yaml`), guiding you through each step with clear prompts and error checking.
+
+### Required files
+
+Before running the setup script, ensure you have the following two files ready:
+
+1. `Diamond DB`: A diamond database that will be used to annotate assembled contigs.
+2. `Reference genome`: An indexed fasta file that will be used as a host filter for your reads.
+
+### Initializing the Project Directory
+
+Use `singularity exec` to run the setup script. This will create your project folder and generate the **sample.tsv**, **config.yaml** and **Snakefile** required for the pipeline.
+
+``` bash
+singularity exec \
+  --bind /mnt/viro0002-data:/mnt/viro0002-data \
+  --bind $HOME:$HOME \
+  --bind $PWD:$PWD \
+  imam_workflow.sif \
+  python /prepare_project.py \
+    -p {project.folder} \
+    -n {name} \
+    -r {reads} \
+    -t {threads}
+```
+
+-   `{name}`: The name of your study, no spaces allowed.
+-   `{project.folder}`: The project folder where you run your workflow and store results.
+-   `{reads}`: The folder that contains your raw .fastq.gz files. Raw read files must adhere to the naming scheme as described [here](https://help.basespace.illumina.com/files-used-by-basespace/fastq-files#naming){target="_blank"}.
+
+::: callout-important
+**The `--bind` arguments are needed to explicitly tell Singularity to mount the necessary host directories into the container.** The part before the colon is the path on the host machine that you want to make available. The path after the colon is the path inside the container where the host directory should be mounted.
+
+As a default, Singularity often automatically binds your home directory (`$HOME`) and the current directory (`$PWD`). We also explicitly bind `/mnt/viro0002-data` in this example. If your input files (reads, reference, databases) or output project directory reside outside these locations, you MUST add specific `--bind /host/path:/container/path` options for those locations, otherwise the container won’t be able to find them.
+:::
+
+::: callout-note
+When **prepare_project.py** prompts for the **reference genome** and **diamond database** paths, you must enter the absolute host paths, and these paths must be accessible via one of the bind mounts.
+
+Also, it'll ask if you want to create a raw_data/ folder with softlinks to your raw fastq.gz files. This is not required for running the workflow, but it can be convenient to have softlinks to your raw data available in your project directory.
+:::
+
+After running the prepare_project.py helper script, you should have the following files in your project directory:
+
+-   The **sample.tsv** should have 3 columns: sample (sample name), fq1 and fq2 (paths to raw read files). Please note that samples sequenced by Illumina machines can be ran across different lanes. In such cases, the Illumina software will generate multiple fastq files for each sample that are lane specific (e.g. L001 = Lane 1, etc). So you may end up with a sample.tsv file that contains samples like `1_S1_L001` and `1_S1_L002`, even though these are the same sample, just sequenced across different lanes. The snakemake workflow will recognize this behaviour and merge these files together accordingly.
+
+-   The **config.yaml** contains more general information like the indexed reference and database you supplied as well as the amount of default threads to use.
+
+-   The **Snakefile** is the "recipe" for the workflow, describing all the steps we have done by hand, and it is most commonly placed in the root directory of your project (you can open the Snakefile with a text editor and have a look).
+
+## 1.5 Executing the Pipeline
+
+Once the project directory is initialized, navigate into it and run the workflow.
+
+1. Navigate to the project:
+```bash
+cd {project.folder}
+```
+
+This folder should contain your `Snakefile`, `sample.tsv` and `config.yaml` files, which were generated during **step 1.4**.
+
+2. Dry Run (Optional but Recommended):
+Check for errors without executing commands.
+```bash
+singularity exec \
+  --bind /mnt/viro0002-data:/mnt/viro0002-data \
+  --bind $HOME:$HOME \
+  --bind $PWD:$PWD \
+  imam_workflow.sif \
+  snakemake --snakefile Snakefile --cores 1 --dryrun
+```
+
+3. Run the workflow:
+Remove `--dryrun` and set the number of threads
+```bash
+singularity exec \
+  --bind /mnt/viro0002-data:/mnt/viro0002-data \
+  --bind $HOME:$HOME \
+  --bind $PWD:$PWD \
+  imam_workflow.sif \
+  snakemake --snakefile Snakefile --cores {threads}
+```

@@ -1,4 +1,4 @@
-# 3. De novo assembly {.unnumbered}
+# 3. Manual: De novo assembly {.unnumbered}
 
 ## 3.1 metaSPades {.unnumbered}
 

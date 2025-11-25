@@ -1,4 +1,4 @@
-# 5. Extracting Viral Sequences and Analyzing Mapped Reads {.unnumbered}
+# 5. Manual: Extracting Viral Sequences and Analyzing Mapped Reads {.unnumbered}
 
 We will conclude the pipeline with various steps which will create valuable data files for further downstream analysis.
 
@@ -84,7 +84,3 @@ seqkit grep -f <(cut -f1 {input.viral}) {input.contigs} > {output.viral}
 -   `{input.annotated}`, `{input.unannotated}` and `{input.viral}` are .tsv annotation files from **steps 4.3 and 5.1**.
 -   `{input.contigs}` is the .fasta file containing all contigs for a sample from **step 3.1**.
 -   `{output.annotated}`, `{output.unannotated}` and `{output.viral}` are .fasta files containing the contigs.
-
-::: {.callout-note}
-You can now move to the final chapter to automate all of the steps we've previously discussed. 
-:::
