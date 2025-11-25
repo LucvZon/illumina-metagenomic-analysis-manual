@@ -88,7 +88,8 @@ rule all:
         expand("result/{sample}/mapping/viral_contigs.fasta", sample=BASE_SAMPLES),
         expand("result/readstats/{statfile}.tsv", statfile=["raw", "dedup", "qc", "filter", "mapped", "viral"]),
         "result/readstats/ALL_STATS_COMBINED.tsv",
-        "result/final_processed_annotation.tsv"
+        "result/final_processed_annotation.tsv",
+        "result/final_viral_annotation.tsv"
 
 rule record_container_version:
     message:
@@ -602,6 +603,19 @@ rule aggregate_final_annotation:
         
         # Concatenate all the per-sample files into the final report.
         cat {input} >> {output}
+        """
+
+rule aggregate_viral_annotation:
+    input:
+        "result/final_processed_annotation.tsv"
+    output:
+        "result/final_viral_annotation.tsv"
+    shell:
+        """
+        echo -e "Sample\\tContig_ID\\tContig_Length\\tRead_Count\\tsseqid\\tpident\\tlength\\tmismatch\\tgapopen\\tqstart\\tqend\\tsstart\\tsend\\tevalue\\tbitscore\\tstaxids\\ttaxon_name\\tspecies\\tgenus\\tfamily\\torder\\tclass\\tphylum\\tkingdom\\tsuperkingdom" > {output}
+        
+        # Concatenate all the per-sample files into the final report.
+        grep -E "Adnaviria|Duplodnaviria|Monodnaviria|Riboviria|Ribozyviria|Varidnaviria" {input} >> {output} || touch {output}
         """
 		
 ### DESTROY .snakemake/ AFTER THE WORKFLOW HAS SUCCESFULLY FINISHED
