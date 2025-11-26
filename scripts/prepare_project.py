@@ -3,6 +3,7 @@
 import os, sys
 import argparse
 import shutil
+import re
 import pandas as pd
 import glob
 import subprocess
@@ -34,10 +35,23 @@ def check_for_updates(repo_owner: str, repo_name: str):
         RED = '\033[91m'
         ENDC = '\033[0m'
 
-    # 1. Get the local version from the file inside the container
-    local_version_file = Path("/IMAM_VERSION")
-    if not local_version_file.exists():
-        # If the file doesn't exist, we can't check, so we just skip.
+    # Define the two possible locations for the version file.
+    container_path = Path("/IMAM_VERSION")
+
+    # When running locally, the script is in '.../scripts/amplicon_project.py'.
+    # The version file is in the project root, so we go up two directories.
+    script_location = Path(__file__).resolve() # Absolute path to this script
+    project_root = script_location.parent.parent # .../scripts/ -> .../
+    local_path = project_root / "IMAM_VERSION"
+
+    # Now, figure out which one to use.
+    if container_path.exists():
+        local_version_file = container_path
+    elif local_path.exists():
+        local_version_file = local_path
+    else:
+        # If neither file exists, we can't check, so we just skip.
+        print("Warning: IMAM_VERSION file not found in standard locations. Skipping update check.", file=sys.stderr)
         return
 
     local_version_str = local_version_file.read_text().strip()
@@ -97,7 +111,9 @@ parser = argparse.ArgumentParser(description="Interactive tool for setting up a 
 parser.add_argument("-p", "--project_dir", help="Project directory path (default: current directory)", default=".") # current directory
 parser.add_argument("-n", "--study_name", required=True, help="Name of the study")
 parser.add_argument("-r", "--raw_fastq_dir", required=True, help="Directory containing raw FASTQ files")
-parser.add_argument("-t", "--threads", required=False, help="Maximum number of threads for the Snakefile (default: 8)", default=8)
+parser.add_argument("-t", "--threads", type=int, required=False, help="Maximum number of threads for the Snakefile (default: 8)", default=8)
+parser.add_argument("--ref-genome", required=True, help="Path to the reference genome FASTA file (.fna, .fasta, .fa)")
+parser.add_argument("--diamond-db", required=True, help="Path to the DIAMOND database file (.dmnd)")
 
 args = parser.parse_args() # reads command from user
 
@@ -110,21 +126,44 @@ if not os.path.exists(project_dir):
 print(f"Using project directory: {project_dir}")
 
 # 1. Copy Snakemake file and update STUDY_NAME
-src_snakemake = "/snakefile_imam.smk" # This is adjusted for the singularity image
+# --- Robustly find the source Snakefile ---
+container_snakefile_path = Path("/snakefile_imam.smk")
+
+# When local, it's in '<project_root>/workflow/snakefile_naam.smk'
+script_location = Path(__file__).resolve()
+project_root = script_location.parent.parent
+local_snakefile_path = project_root / "workflow" / "snakefile_imam.smk"
+
+if container_snakefile_path.exists():
+    src_snakemake = container_snakefile_path
+elif local_snakefile_path.exists():
+    src_snakemake = local_snakefile_path
+else:
+    print(f"Error: Source Snakemake file not found at '{container_snakefile_path}' or '{local_snakefile_path}'.")
+    sys.exit(1)
+
 dest_snakemake = os.path.join(project_dir, "Snakefile")
-shutil.copy2(src_snakemake, dest_snakemake)
 
-with open(dest_snakemake, 'r') as file:
-    filedata = file.read()
+try:
+    shutil.copy2(src_snakemake, dest_snakemake)
 
-# Replace the STUDY_NAME variable
-study_name = args.study_name
-filedata = filedata.replace('STUDY_NAME = ""', f'STUDY_NAME = "{study_name}"')
+    with open(dest_snakemake, 'r') as file:
+        filedata = file.read()
 
-with open(dest_snakemake, 'w') as file:
-    file.write(filedata)
+    # Replace the STUDY_NAME variable
+    study_name = args.study_name
+    # Make the replacement more robust (e.g., handle spaces around =)
+    filedata = re.sub(r'STUDY_NAME\s*=\s*""', f'STUDY_NAME = "{study_name}"', filedata)
+    # filedata = filedata.replace('STUDY_NAME = ""', f'STUDY_NAME = "{study_name}"') # Original less robust way
 
-print(f"Copied and modified Snakemake file to: {dest_snakemake}")
+    with open(dest_snakemake, 'w') as file:
+        file.write(filedata)
+
+    print(f"Copied and modified Snakemake file to: {dest_snakemake}")
+
+except Exception as e:
+    print(f"Error processing Snakemake file: {e}")
+    sys.exit(1)
 
  # 2. Set up raw FASTQ files
 raw_fastq_dir = args.raw_fastq_dir
@@ -132,28 +171,6 @@ raw_fastq_dir = args.raw_fastq_dir
 if not os.path.exists(raw_fastq_dir):
     print(f"Error: Raw FASTQ directory '{raw_fastq_dir}' does not exist.")
     sys.exit(1)
-
-create_link = input("Create a 'raw_data' directory and symbolic links to the FASTQ files? (y/n): ")
-if create_link.lower() == "y":
-    raw_data_dir = os.path.join(project_dir, "raw_data")
-    os.makedirs(raw_data_dir, exist_ok=True)
-
-    # Iterate through the files in directory
-    files = glob.glob(os.path.join(raw_fastq_dir,"*.fastq.gz"))
-    for file in files:
-       print(file)
-       dest_file = os.path.join(raw_data_dir,os.path.basename(file))
-       # Check if the file link already exists before creating the link
-       if not os.path.exists(dest_file):
-            # Make source file path absolute for the link
-            abs_src_file = os.path.abspath(file)
-            command=f'ln -s "{abs_src_file}" "{dest_file}"' # Use absolute source
-            subprocess.run(command, shell=True, check=True)
-       else:
-            print(f"Link: {dest_file} already exists, skipping.")
-            continue
-
-    print(f"Created 'raw_data' directory and symbolic links to FASTQ files.")
 
 # 3. Generate sample configuration (TSV)
 raw_fastq_dir = args.raw_fastq_dir
@@ -192,29 +209,30 @@ df.to_csv(tsv_file, sep="\t", index=False)
 
 print(f"Created sample configuration file: {tsv_file}")
 
-# 4. Generate general settings configuration (YAML)
-ref_genome = input("Enter path to reference genome (.fna / .fasta / .fa): ")
-# Check that the input .fna exists in the directory
-if not os.path.exists(ref_genome):
-    print(f"Error: The file {ref_genome} does not exist. Please specify your input reference genome")
-    sys.exit(1)
-diamond_db = input("Enter path to DIAMOND database (.dmnd): ")
-# Check that the diamond exists in the directory
-if not os.path.exists(diamond_db):
-    print(f"Error: The file {diamond_db} does not exist. Please specify your input diamond database")
+# 4. Validate paths and generate general settings configuration (YAML)
+if not os.path.exists(args.ref_genome):
+    print(f"Error: The reference genome file '{args.ref_genome}' does not exist.")
     sys.exit(1)
 
-# 5. Set threads
-threads = int(args.threads)
+if not os.path.exists(args.diamond_db):
+    print(f"Error: The DIAMOND database file '{args.diamond_db}' does not exist.")
+    sys.exit(1)
 
 config_data = {
-    "ref_genome": os.path.abspath(ref_genome),
-    "diamond_db": os.path.abspath(diamond_db),
-    "threads": threads
+    "ref_genome": os.path.abspath(args.ref_genome),
+    "diamond_db": os.path.abspath(args.diamond_db),
+    "threads": args.threads
 }
 
 yaml_file = os.path.join(project_dir, "config.yaml")
 with open(yaml_file, "w") as outfile:
     yaml.dump(config_data, outfile, default_flow_style=False)
-
 print(f"Created general settings configuration file: {yaml_file}")
+
+# Victory lap
+print("\nProject setup complete.")
+print(f"Project Directory: {project_dir}")
+print(f"Snakemake File: {dest_snakemake}")
+print(f"Sample Sheet: {tsv_file}")
+print(f"Configuration file: {yaml_file}")
+print("\nYou can now navigate to the project directory and run Snakemake.")

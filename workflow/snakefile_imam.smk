@@ -10,13 +10,26 @@ import os
 import re
 import sys
 
+# Check for an environment variable that is ONLY set inside the Singularity container.
+# If it exists, we are in the container. Otherwise, we are running locally.
+if "SINGULARITY_NAME" in os.environ:
+    # We are in the container, scripts are in the root.
+    SCRIPT_PATH = "/"
+    VERSION_FILE_PATH = "/IMAM_VERSION"
+    print(f"--- Running inside Singularity. Expecting version file at: {VERSION_FILE_PATH} ---", flush=True)
+else:
+    # We are running locally, scripts are in the 'scripts' sub-directory.
+    SCRIPT_PATH = "scripts/"
+    VERSION_FILE_PATH = "IMAM_VERSION"
+    print(f"--- Running in a local environment. Expecting version file at: {VERSION_FILE_PATH} ---", flush=True)
+
 # --- Print container version to the log for immediate feedback ---
 try:
-    with open("/IMAM_VERSION", "r") as f:
+    with open(VERSION_FILE_PATH, "r") as f:
         container_version = f.read().strip()
     print(f"--- IMAM Workflow running with container version: {container_version} ---", flush=True)
 except FileNotFoundError:
-    print("--- WARNING: Could not determine container version. /IMAM_VERSION not found. ---", flush=True)
+    print("--- WARNING: Could not determine container version. {VERSION_FILE_PATH} not found. ---", flush=True)
 
 # Load general configuration
 configfile: "config.yaml"
@@ -98,7 +111,7 @@ rule record_container_version:
         "result/used_container_version.txt"
     shell:
         """
-        cat /IMAM_VERSION > {output}
+        cat {VERSION_FILE_PATH} > {output}
         """
 
 rule merge_and_unzip_fastq:
@@ -312,9 +325,11 @@ rule parse_diamond_output:
     output:
         annotated = "result/{sample}/annotation/annotated_contigs.tsv",
         unannotated = "result/{sample}/annotation/unannotated_contigs.tsv"
+    params:
+        python_script=os.path.join(SCRIPT_PATH, "post_process_diamond_v1.0.py")
     shell:
         '''
-        python /post_process_diamond_v1.0.py \
+        python {params.python_script} \
         -i {input.annotation} \
         -c {input.contigs} \
         -o {output.annotated} \
