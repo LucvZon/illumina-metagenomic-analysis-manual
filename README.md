@@ -29,6 +29,8 @@ Interesting files can be found here:
     -p {project.folder} \
     -n {name} \
     -r {reads} \
+    --ref-genome {reference} \
+    --diamond-db {database} \
     -t {threads}
   ```
   
