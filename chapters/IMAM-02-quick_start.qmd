@@ -70,23 +70,21 @@ singularity exec \
     -p {project.folder} \
     -n {name} \
     -r {reads} \
+    --ref-genome {reference} \
+    --diamond-db {database} \
     -t {threads}
 ```
 
 -   `{name}`: The name of your study, no spaces allowed.
 -   `{project.folder}`: The project folder where you run your workflow and store results.
 -   `{reads}`: The folder that contains your raw .fastq.gz files. Raw read files must adhere to the naming scheme as described [here](https://help.basespace.illumina.com/files-used-by-basespace/fastq-files#naming){target="_blank"}.
+-   `{reference}`: Absolute path pointing to your reference genome (.fna, .fasta, .fa).
+-   `{database}`: Absolute path pointing to your diamond database (.dmnd).
 
 ::: callout-important
 **The `--bind` arguments are needed to explicitly tell Singularity to mount the necessary host directories into the container.** The part before the colon is the path on the host machine that you want to make available. The path after the colon is the path inside the container where the host directory should be mounted.
 
 As a default, Singularity often automatically binds your home directory (`$HOME`) and the current directory (`$PWD`). We also explicitly bind `/mnt/viro0002-data` in this example. If your input files (reads, reference, databases) or output project directory reside outside these locations, you MUST add specific `--bind /host/path:/container/path` options for those locations, otherwise the container won’t be able to find them.
-:::
-
-::: callout-note
-When **prepare_project.py** prompts for the **reference genome** and **diamond database** paths, you must enter the absolute host paths, and these paths must be accessible via one of the bind mounts.
-
-Also, it'll ask if you want to create a raw_data/ folder with softlinks to your raw fastq.gz files. This is not required for running the workflow, but it can be convenient to have softlinks to your raw data available in your project directory.
 :::
 
 After running the prepare_project.py helper script, you should have the following files in your project directory:
