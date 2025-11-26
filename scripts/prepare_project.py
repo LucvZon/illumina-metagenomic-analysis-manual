@@ -111,7 +111,9 @@ parser = argparse.ArgumentParser(description="Interactive tool for setting up a 
 parser.add_argument("-p", "--project_dir", help="Project directory path (default: current directory)", default=".") # current directory
 parser.add_argument("-n", "--study_name", required=True, help="Name of the study")
 parser.add_argument("-r", "--raw_fastq_dir", required=True, help="Directory containing raw FASTQ files")
-parser.add_argument("-t", "--threads", required=False, help="Maximum number of threads for the Snakefile (default: 8)", default=8)
+parser.add_argument("-t", "--threads", type=int, required=False, help="Maximum number of threads for the Snakefile (default: 8)", default=8)
+parser.add_argument("--ref-genome", required=True, help="Path to the reference genome FASTA file (.fna, .fasta, .fa)")
+parser.add_argument("--diamond-db", required=True, help="Path to the DIAMOND database file (.dmnd)")
 
 args = parser.parse_args() # reads command from user
 
@@ -170,28 +172,6 @@ if not os.path.exists(raw_fastq_dir):
     print(f"Error: Raw FASTQ directory '{raw_fastq_dir}' does not exist.")
     sys.exit(1)
 
-create_link = input("Create a 'raw_data' directory and symbolic links to the FASTQ files? (y/n): ")
-if create_link.lower() == "y":
-    raw_data_dir = os.path.join(project_dir, "raw_data")
-    os.makedirs(raw_data_dir, exist_ok=True)
-
-    # Iterate through the files in directory
-    files = glob.glob(os.path.join(raw_fastq_dir,"*.fastq.gz"))
-    for file in files:
-       print(file)
-       dest_file = os.path.join(raw_data_dir,os.path.basename(file))
-       # Check if the file link already exists before creating the link
-       if not os.path.exists(dest_file):
-            # Make source file path absolute for the link
-            abs_src_file = os.path.abspath(file)
-            command=f'ln -s "{abs_src_file}" "{dest_file}"' # Use absolute source
-            subprocess.run(command, shell=True, check=True)
-       else:
-            print(f"Link: {dest_file} already exists, skipping.")
-            continue
-
-    print(f"Created 'raw_data' directory and symbolic links to FASTQ files.")
-
 # 3. Generate sample configuration (TSV)
 raw_fastq_dir = args.raw_fastq_dir
 # Ensure raw_fastq_dir itself is absolute for robust path joining and globbing
@@ -229,29 +209,30 @@ df.to_csv(tsv_file, sep="\t", index=False)
 
 print(f"Created sample configuration file: {tsv_file}")
 
-# 4. Generate general settings configuration (YAML)
-ref_genome = input("Enter path to reference genome (.fna / .fasta / .fa): ")
-# Check that the input .fna exists in the directory
-if not os.path.exists(ref_genome):
-    print(f"Error: The file {ref_genome} does not exist. Please specify your input reference genome")
-    sys.exit(1)
-diamond_db = input("Enter path to DIAMOND database (.dmnd): ")
-# Check that the diamond exists in the directory
-if not os.path.exists(diamond_db):
-    print(f"Error: The file {diamond_db} does not exist. Please specify your input diamond database")
+# 4. Validate paths and generate general settings configuration (YAML)
+if not os.path.exists(args.ref_genome):
+    print(f"Error: The reference genome file '{args.ref_genome}' does not exist.")
     sys.exit(1)
 
-# 5. Set threads
-threads = int(args.threads)
+if not os.path.exists(args.diamond_db):
+    print(f"Error: The DIAMOND database file '{args.diamond_db}' does not exist.")
+    sys.exit(1)
 
 config_data = {
-    "ref_genome": os.path.abspath(ref_genome),
-    "diamond_db": os.path.abspath(diamond_db),
-    "threads": threads
+    "ref_genome": os.path.abspath(args.ref_genome),
+    "diamond_db": os.path.abspath(args.diamond_db),
+    "threads": args.threads
 }
 
 yaml_file = os.path.join(project_dir, "config.yaml")
 with open(yaml_file, "w") as outfile:
     yaml.dump(config_data, outfile, default_flow_style=False)
-
 print(f"Created general settings configuration file: {yaml_file}")
+
+# Victory lap
+print("\nProject setup complete.")
+print(f"Project Directory: {project_dir}")
+print(f"Snakemake File: {dest_snakemake}")
+print(f"Sample Sheet: {tsv_file}")
+print(f"Configuration file: {yaml_file}")
+print("\nYou can now navigate to the project directory and run Snakemake.")
