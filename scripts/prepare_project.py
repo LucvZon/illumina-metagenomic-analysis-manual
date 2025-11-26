@@ -117,7 +117,7 @@ parser.add_argument("--diamond-db", required=True, help="Path to the DIAMOND dat
 
 args = parser.parse_args() # reads command from user
 
-check_for_updates(repo_owner="LucvZon", repo_name="illumina-metagenomic-analysis-manual")
+check_for_updates(repo_owner="EMC-Viroscience", repo_name="illumina-metagenomic-analysis-manual")
 
 # 0. Project directory path
 project_dir = args.project_dir
