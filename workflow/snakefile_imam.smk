@@ -326,7 +326,7 @@ rule parse_diamond_output:
         annotated = "result/{sample}/annotation/annotated_contigs.tsv",
         unannotated = "result/{sample}/annotation/unannotated_contigs.tsv"
     params:
-        python_script=os.path.join(SCRIPT_PATH, "post_process_diamond_v1.0.py"
+        python_script=os.path.join(SCRIPT_PATH, "post_process_diamond_v1.0.py")
     shell:
         '''
         python {params.python_script} \
