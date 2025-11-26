@@ -34,10 +34,23 @@ def check_for_updates(repo_owner: str, repo_name: str):
         RED = '\033[91m'
         ENDC = '\033[0m'
 
-    # 1. Get the local version from the file inside the container
-    local_version_file = Path("/IMAM_VERSION")
-    if not local_version_file.exists():
-        # If the file doesn't exist, we can't check, so we just skip.
+    # Define the two possible locations for the version file.
+    container_path = Path("/IMAM_VERSION")
+
+    # When running locally, the script is in '.../scripts/amplicon_project.py'.
+    # The version file is in the project root, so we go up two directories.
+    script_location = Path(__file__).resolve() # Absolute path to this script
+    project_root = script_location.parent.parent # .../scripts/ -> .../
+    local_path = project_root / "IMAM_VERSION"
+
+    # Now, figure out which one to use.
+    if container_path.exists():
+        local_version_file = container_path
+    elif local_path.exists():
+        local_version_file = local_path
+    else:
+        # If neither file exists, we can't check, so we just skip.
+        print("Warning: IMAM_VERSION file not found in standard locations. Skipping update check.", file=sys.stderr)
         return
 
     local_version_str = local_version_file.read_text().strip()
@@ -110,21 +123,44 @@ if not os.path.exists(project_dir):
 print(f"Using project directory: {project_dir}")
 
 # 1. Copy Snakemake file and update STUDY_NAME
-src_snakemake = "/snakefile_imam.smk" # This is adjusted for the singularity image
+# --- Robustly find the source Snakefile ---
+container_snakefile_path = Path("/snakefile_imam.smk")
+
+# When local, it's in '<project_root>/workflow/snakefile_naam.smk'
+script_location = Path(__file__).resolve()
+project_root = script_location.parent.parent
+local_snakefile_path = project_root / "workflow" / "snakefile_imam.smk"
+
+if container_snakefile_path.exists():
+    src_snakemake = container_snakefile_path
+elif local_snakefile_path.exists():
+    src_snakemake = local_snakefile_path
+else:
+    print(f"Error: Source Snakemake file not found at '{container_snakefile_path}' or '{local_snakefile_path}'.")
+    sys.exit(1)
+
 dest_snakemake = os.path.join(project_dir, "Snakefile")
-shutil.copy2(src_snakemake, dest_snakemake)
 
-with open(dest_snakemake, 'r') as file:
-    filedata = file.read()
+try:
+    shutil.copy2(src_snakemake, dest_snakemake)
 
-# Replace the STUDY_NAME variable
-study_name = args.study_name
-filedata = filedata.replace('STUDY_NAME = ""', f'STUDY_NAME = "{study_name}"')
+    with open(dest_snakemake, 'r') as file:
+        filedata = file.read()
 
-with open(dest_snakemake, 'w') as file:
-    file.write(filedata)
+    # Replace the STUDY_NAME variable
+    study_name = args.study_name
+    # Make the replacement more robust (e.g., handle spaces around =)
+    filedata = re.sub(r'STUDY_NAME\s*=\s*""', f'STUDY_NAME = "{study_name}"', filedata)
+    # filedata = filedata.replace('STUDY_NAME = ""', f'STUDY_NAME = "{study_name}"') # Original less robust way
 
-print(f"Copied and modified Snakemake file to: {dest_snakemake}")
+    with open(dest_snakemake, 'w') as file:
+        file.write(filedata)
+
+    print(f"Copied and modified Snakemake file to: {dest_snakemake}")
+
+except Exception as e:
+    print(f"Error processing Snakemake file: {e}")
+    sys.exit(1)
 
  # 2. Set up raw FASTQ files
 raw_fastq_dir = args.raw_fastq_dir
