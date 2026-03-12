@@ -3,10 +3,11 @@ From: continuumio/miniconda3
 
 %files
     # Relative paths from where you run 'singularity build'
-    ../envs/imam.tar.gz /imam.tar.gz
-    ../python/prepare_project.py /prepare_project.py
-    ../workflows/snakefile_imam.smk /snakefile_imam.smk
-    ../python/post_process_diamond_v1.0.py /post_process_diamond_v1.0.py
+    envs/imam.tar.gz /imam.tar.gz
+    scripts/prepare_project.py /prepare_project.py
+    scripts/post_process_diamond_v1.0.py /post_process_diamond_v1.0.py
+    scripts/build_taxon_dict.py /build_taxon_dict.py
+    workflow/snakefile_imam.smk /snakefile_imam.smk
     IMAM_VERSION /IMAM_VERSION
 
 
