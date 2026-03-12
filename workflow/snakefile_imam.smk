@@ -316,26 +316,39 @@ rule split_annotation_files:
         rmdir tmp_split
         '''
 
+rule build_taxdump_index:
+    output:
+        tax_dict="taxon_dict.pkl"
+    params:
+        script=os.path.join(SCRIPT_PATH, "build_taxon_dict.py")
+    log:
+        os.path.join("logs", "build_taxdump.log")
+    shell:
+        "python {params.script} -o {output.tax_dict} -log {log}"
+
 rule parse_diamond_output:
     input:
         annotation = "result/{sample}/annotation/diamond_output.tsv",
-        contigs = "result/{sample}/assembly/contigs.fasta"
-    threads: 1
-    log: "logs/{sample}_diamond_parser.log"
+        contigs = "result/{sample}/assembly/contigs.fasta",
+        tax_dict="taxon_dict.pkl"
     output:
         annotated = "result/{sample}/annotation/annotated_contigs.tsv",
         unannotated = "result/{sample}/annotation/unannotated_contigs.tsv"
     params:
-        python_script=os.path.join(SCRIPT_PATH, "post_process_diamond_v1.0.py")
+        script=os.path.join(SCRIPT_PATH, "post_process_diamond_v1.0.py")
+    threads: 1
+    log:
+        "logs/{sample}_diamond_parser.log"
     shell:
-        '''
-        python {params.python_script} \
+        """
+        python {params.script} \
         -i {input.annotation} \
         -c {input.contigs} \
+        -t {input.tax_dict} \
         -o {output.annotated} \
         -u {output.unannotated} \
         -log {log}
-        '''
+        """
 
 rule extract_viral_annotations:
     input:
