@@ -358,7 +358,7 @@ rule extract_viral_annotations:
         viral = "result/{sample}/annotation/viral_contigs.tsv"
     shell:
         '''
-        grep -E "Adnaviria|Duplodnaviria|Monodnaviria|Riboviria|Ribozyviria|Varidnaviria" {input.annotated} > {output.viral} || touch {output.viral}
+        grep -E "*viria" {input.annotated} > {output.viral} || touch {output.viral}
         '''
 
 rule map_reads_to_contigs:
@@ -643,7 +643,7 @@ rule aggregate_viral_annotation:
         echo -e "Sample\\tContig_ID\\tContig_Length\\tRead_Count\\tsseqid\\tpident\\tlength\\tmismatch\\tgapopen\\tqstart\\tqend\\tsstart\\tsend\\tevalue\\tbitscore\\tstaxids\\ttaxon_name\\tspecies\\tgenus\\tfamily\\torder\\tclass\\tphylum\\tkingdom\\tsuperkingdom" > {output}
         
         # Concatenate all the per-sample files into the final report.
-        grep -E "Adnaviria|Duplodnaviria|Monodnaviria|Riboviria|Ribozyviria|Varidnaviria" {input} >> {output} || touch {output}
+        grep -E "*viria" {input} >> {output} || touch {output}
         """
 		
 ### DESTROY .snakemake/ AFTER THE WORKFLOW HAS SUCCESFULLY FINISHED
