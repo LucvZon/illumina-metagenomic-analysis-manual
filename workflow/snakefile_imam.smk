@@ -100,7 +100,7 @@ TARGET_FILES = [
     "result/readstats/ALL_STATS_COMBINED.tsv",
     "result/final_processed_annotation.tsv",
     "result/final_viral_annotation.tsv"
-]s
+]
 
 # If Kaiju is configured, append it to the target files
 if config.get("kaiju_db_dir") and config.get("kaiju_fmi"):
