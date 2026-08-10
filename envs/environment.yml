@@ -18,4 +18,5 @@ dependencies:
   - conda-forge::biopython=1.85
   - bioconda::samtools=1.22.1
   - conda-forge::rsync=3.4.1
+  - bioconda::kaiju=1.10.2
 name: imam
