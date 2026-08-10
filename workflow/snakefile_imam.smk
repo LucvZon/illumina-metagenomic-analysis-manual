@@ -665,9 +665,9 @@ rule annotate_reads:
         kaiju_krona = "result/{sample}/kaiju/{sample}_kaiju_krona.out"
     threads: config["threads"]
     params:
-        nodes = os.path.join(config.get("kaiju_db_dir", ""), "nodes.dmp"),
-        names = os.path.join(config.get("kaiju_db_dir", ""), "names.dmp"),
-        fmi = config.get("kaiju_fmi", "")
+        nodes = os.path.join(config.get("kaiju_db_dir") or "", "nodes.dmp"),
+        names = os.path.join(config.get("kaiju_db_dir") or "", "names.dmp"),
+        fmi = config.get("kaiju_fmi") or ""
     log: "logs/{sample}_kaiju.log"
     shell:
         """
