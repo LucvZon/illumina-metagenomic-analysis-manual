@@ -7,6 +7,7 @@ From: continuumio/miniconda3
     scripts/prepare_project.py /prepare_project.py
     scripts/post_process_diamond_v1.0.py /post_process_diamond_v1.0.py
     scripts/build_taxon_dict.py /build_taxon_dict.py
+    scripts/bin_reads.py /bin_reads.py
     workflow/snakefile_imam.smk /snakefile_imam.smk
     IMAM_VERSION /IMAM_VERSION
 
