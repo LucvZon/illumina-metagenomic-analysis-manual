@@ -88,21 +88,27 @@ for base_sample in BASE_SAMPLES:
 print(f"Base Samples: {BASE_SAMPLES}")
 print(f"Fastq Files Per Base Sample: {fastq_files_for_base_sample}")
 
+TARGET_FILES = [
+    "result/used_container_version.txt",
+    expand("result/{sample}/mapping/annotated_idxstats.tsv", sample=BASE_SAMPLES),
+    expand("result/{sample}/mapping/unannotated_idxstats.tsv", sample=BASE_SAMPLES),
+    expand("result/{sample}/mapping/viral_idxstats.tsv", sample=BASE_SAMPLES),
+    expand("result/{sample}/mapping/annotated_contigs.fasta", sample=BASE_SAMPLES),
+    expand("result/{sample}/mapping/unannotated_contigs.fasta", sample=BASE_SAMPLES),
+    expand("result/{sample}/mapping/viral_contigs.fasta", sample=BASE_SAMPLES),
+    expand("result/readstats/{statfile}.tsv", statfile=["raw", "dedup", "qc", "filter", "mapped", "viral"]),
+    "result/readstats/ALL_STATS_COMBINED.tsv",
+    "result/final_processed_annotation.tsv",
+    "result/final_viral_annotation.tsv"
+]s
+
+# If Kaiju is configured, append it to the target files
+if config.get("kaiju_db_dir") and config.get("kaiju_fmi"):
+    TARGET_FILES.extend(expand("result/{sample}/kaiju/binned_reads", sample=BASE_SAMPLES))
 
 rule all:
     input:
-        "result/used_container_version.txt",
-        # Expand based on the unique BASE samples
-        expand("result/{sample}/mapping/annotated_idxstats.tsv", sample=BASE_SAMPLES),
-        expand("result/{sample}/mapping/unannotated_idxstats.tsv", sample=BASE_SAMPLES),
-        expand("result/{sample}/mapping/viral_idxstats.tsv", sample=BASE_SAMPLES),
-        expand("result/{sample}/mapping/annotated_contigs.fasta", sample=BASE_SAMPLES),
-        expand("result/{sample}/mapping/unannotated_contigs.fasta", sample=BASE_SAMPLES),
-        expand("result/{sample}/mapping/viral_contigs.fasta", sample=BASE_SAMPLES),
-        expand("result/readstats/{statfile}.tsv", statfile=["raw", "dedup", "qc", "filter", "mapped", "viral"]),
-        "result/readstats/ALL_STATS_COMBINED.tsv",
-        "result/final_processed_annotation.tsv",
-        "result/final_viral_annotation.tsv"
+        TARGET_FILES
 
 rule record_container_version:
     message:
@@ -644,6 +650,73 @@ rule aggregate_viral_annotation:
         
         # Concatenate all the per-sample files into the final report.
         grep -E "*viria" {input} >> {output} || touch {output}
+        """
+        
+rule annotate_reads:
+    message:
+        "Annotating raw reads with Kaiju for {wildcards.sample}"
+    input:
+        # Use the already merged FASTQ files from the pipeline to avoid multi-lane list errors
+        R1 = "result/{sample}/{sample}_R1.fastq",
+        R2 = "result/{sample}/{sample}_R2.fastq"
+    output:
+        kaiju_out = "result/{sample}/kaiju/{sample}_kaiju.out",
+        kaiju_names = "result/{sample}/kaiju/{sample}_kaiju_names.out",
+        kaiju_krona = "result/{sample}/kaiju/{sample}_kaiju_krona.out"
+    threads: config["threads"]
+    params:
+        nodes = os.path.join(config.get("kaiju_db_dir", ""), "nodes.dmp"),
+        names = os.path.join(config.get("kaiju_db_dir", ""), "names.dmp"),
+        fmi = config.get("kaiju_fmi", "")
+    log: "logs/{sample}_kaiju.log"
+    shell:
+        """
+        echo "Running Kaiju for {wildcards.sample}" > {log}
+        
+        kaiju -t {params.nodes} \
+              -f {params.fmi} \
+              -i {input.R1} \
+              -j {input.R2} \
+              -o {output.kaiju_out} \
+              -a greedy \
+              -z {threads} >> {log} 2>&1
+        
+        echo "Generating count table for {wildcards.sample}" >> {log}
+        kaiju2krona -t {params.nodes} \
+                    -n {params.names} \
+                    -i {output.kaiju_out} \
+                    -o {output.kaiju_krona} >> {log} 2>&1
+
+        echo "Attaching taxa names for {wildcards.sample}" >> {log}
+        kaiju-addTaxonNames -t {params.nodes} \
+                            -n {params.names} \
+                            -i {output.kaiju_out} \
+                            -o {output.kaiju_names} \
+                            -r superkingdom,phylum,class,order,family,genus,species >> {log} 2>&1
+        """
+
+rule bin_reads:
+    message:
+        "Binning reads for {wildcards.sample}"
+    input:
+        R1 = "result/{sample}/{sample}_R1.fastq",
+        R2 = "result/{sample}/{sample}_R2.fastq",
+        kaiju_names = "result/{sample}/kaiju/{sample}_kaiju_names.out"
+    output:
+        # Using directory() tells Snakemake to track the folder itself 
+        # instead of a specific file inside it.
+        dir = directory("result/{sample}/kaiju/binned_reads")
+    threads: 1 # File writing is I/O bottlenecked; 1 thread is best here
+    params:
+        script = os.path.join(SCRIPT_PATH, "bin_reads.py")
+    log: "logs/{sample}_bin_reads.log"
+    shell:
+        """
+        python {params.script} \
+        {input.kaiju_names} \
+        {input.R1} \
+        {input.R2} \
+        {output.dir} > {log} 2>&1
         """
 		
 ### DESTROY .snakemake/ AFTER THE WORKFLOW HAS SUCCESFULLY FINISHED
