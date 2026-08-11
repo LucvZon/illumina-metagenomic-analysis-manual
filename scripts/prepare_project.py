@@ -114,6 +114,7 @@ parser.add_argument("-r", "--raw_fastq_dir", required=True, help="Directory cont
 parser.add_argument("-t", "--threads", type=int, required=False, help="Maximum number of threads for the Snakefile (default: 8)", default=8)
 parser.add_argument("--ref-genome", required=True, help="Path to the reference genome FASTA file (.fna, .fasta, .fa)")
 parser.add_argument("--diamond-db", required=True, help="Path to the DIAMOND database file (.dmnd)")
+parser.add_argument("--kaiju-db", required=False, help="OPTIONAL: Path to Kaiju database directory")
 
 args = parser.parse_args() # reads command from user
 
@@ -218,9 +219,37 @@ if not os.path.exists(args.diamond_db):
     print(f"Error: The DIAMOND database file '{args.diamond_db}' does not exist.")
     sys.exit(1)
 
+# Validate Kaiju database and find .fmi file
+kaiju_db_dir = None
+kaiju_fmi = None
+
+if args.kaiju_db:
+    k_dir = os.path.abspath(args.kaiju_db)
+    if not os.path.exists(k_dir):
+        print(f"Error: The Kaiju database directory '{k_dir}' does not exist.")
+        sys.exit(1)
+    
+    # Check for nodes.dmp and names.dmp
+    if not os.path.exists(os.path.join(k_dir, "nodes.dmp")) or not os.path.exists(os.path.join(k_dir, "names.dmp")):
+        print("Error: Kaiju database directory must contain 'nodes.dmp' and 'names.dmp'.")
+        sys.exit(1)
+    
+    # Recursively search for the .fmi file
+    fmi_files = list(Path(k_dir).rglob("*.fmi"))
+    if not fmi_files:
+        print("Error: No .fmi file found in the Kaiju directory (or its subdirectories).")
+        sys.exit(1)
+    elif len(fmi_files) > 1:
+        print(f"Warning: Multiple .fmi files found. Using the first one: {fmi_files[0]}")
+    
+    kaiju_db_dir = k_dir
+    kaiju_fmi = str(fmi_files[0])
+
 config_data = {
     "ref_genome": os.path.abspath(args.ref_genome),
     "diamond_db": os.path.abspath(args.diamond_db),
+    "kaiju_db_dir": kaiju_db_dir,
+    "kaiju_fmi": kaiju_fmi,
     "threads": args.threads
 }
 
