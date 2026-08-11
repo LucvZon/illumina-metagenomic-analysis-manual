@@ -654,11 +654,11 @@ rule aggregate_viral_annotation:
         
 rule annotate_reads:
     message:
-        "Annotating raw reads with Kaiju for {wildcards.sample}"
+        "Annotating filtered reads with Kaiju for {wildcards.sample}"
     input:
-        # Use the already merged FASTQ files from the pipeline to avoid multi-lane list errors
-        R1 = "result/{sample}/{sample}_R1.fastq",
-        R2 = "result/{sample}/{sample}_R2.fastq"
+        R1 = "result/{sample}/filtered/{sample}_R1.fastq",
+        R2 = "result/{sample}/filtered/{sample}_R2.fastq",
+        S  = "result/{sample}/filtered/{sample}_S.fastq"
     output:
         kaiju_out = "result/{sample}/kaiju/{sample}_kaiju.out",
         kaiju_names = "result/{sample}/kaiju/{sample}_kaiju_names.out",
@@ -671,15 +671,31 @@ rule annotate_reads:
     log: "logs/{sample}_kaiju.log"
     shell:
         """
-        echo "Running Kaiju for {wildcards.sample}" > {log}
-        
+        echo "Running Kaiju on Paired-End reads for {wildcards.sample}" > {log}
         kaiju -t {params.nodes} \
               -f {params.fmi} \
               -i {input.R1} \
               -j {input.R2} \
-              -o {output.kaiju_out} \
+              -o {output.kaiju_out}.pe \
               -a greedy \
               -z {threads} >> {log} 2>&1
+        
+        echo "Running Kaiju on Singleton reads for {wildcards.sample}" >> {log}
+        # Check if singleton file is empty before running to prevent crash
+        COUNT=$(cat {input.S} | wc -l)
+        if [[ $COUNT -gt 0 ]]; then
+            kaiju -t {params.nodes} \
+                  -f {params.fmi} \
+                  -i {input.S} \
+                  -o {output.kaiju_out}.se \
+                  -a greedy \
+                  -z {threads} >> {log} 2>&1
+            # Merge Paired and Singleton results
+            cat {output.kaiju_out}.pe {output.kaiju_out}.se > {output.kaiju_out}
+        else
+            mv {output.kaiju_out}.pe {output.kaiju_out}
+        fi
+        rm -f {output.kaiju_out}.pe {output.kaiju_out}.se
         
         echo "Generating count table for {wildcards.sample}" >> {log}
         kaiju2krona -t {params.nodes} \
@@ -699,14 +715,13 @@ rule bin_reads:
     message:
         "Binning reads for {wildcards.sample}"
     input:
-        R1 = "result/{sample}/{sample}_R1.fastq",
-        R2 = "result/{sample}/{sample}_R2.fastq",
+        R1 = "result/{sample}/filtered/{sample}_R1.fastq",
+        R2 = "result/{sample}/filtered/{sample}_R2.fastq",
+        S  = "result/{sample}/filtered/{sample}_S.fastq",
         kaiju_names = "result/{sample}/kaiju/{sample}_kaiju_names.out"
     output:
-        # Using directory() tells Snakemake to track the folder itself 
-        # instead of a specific file inside it.
         dir = directory("result/{sample}/kaiju/binned_reads")
-    threads: 1 # File writing is I/O bottlenecked; 1 thread is best here
+    threads: 1 
     params:
         script = os.path.join(SCRIPT_PATH, "bin_reads.py")
     log: "logs/{sample}_bin_reads.log"
@@ -716,7 +731,8 @@ rule bin_reads:
         {input.kaiju_names} \
         {input.R1} \
         {input.R2} \
-        {output.dir} > {log} 2>&1
+        {output.dir} \
+        {input.S} > {log} 2>&1
         """
 		
 ### DESTROY .snakemake/ AFTER THE WORKFLOW HAS SUCCESFULLY FINISHED
