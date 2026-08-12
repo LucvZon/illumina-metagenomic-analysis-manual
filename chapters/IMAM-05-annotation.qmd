@@ -72,7 +72,7 @@ Now we will process the DIAMOND output files with a custom Python script called 
 This python script utilizes the [biopython library](https://biopython.org/){target="_blank"}.
 
 ``` bash
-python /mnt/viro0002-data/workgroups_projects/Bioinformatics/scripts/post_process_diamond_v1.0.py \
+python scripts/post_process_diamond_v1.0.py \
 -i {input.annotation} \
 -c {input.contigs} \
 -o {output.annotated} \
@@ -83,6 +83,81 @@ python /mnt/viro0002-data/workgroups_projects/Bioinformatics/scripts/post_proces
 -   `{input.contigs}` are the contigs from the SPAdes **step 3.1**.
 -   `{output.annotated}` is a .tsv file with a set of annotated contigs.
 -   `{output.unannotated}` is a .tsv file with a set of unannotated contig IDs.
+
+## 4.4 Optional: read classification with Kaiju
+
+Classifying contigs is great because it provides higher accuracy annotations and ignores low noise from random sequencing errors. However, you might still want to taxonomically classify your reads to potentially help detect rare species that are unable to be assembled due to low read depth.
+
+[Kaiju](https://github.com/bioinformatics-centre/kaiju){target="_blank"} is a fast taxonomic classification program which translates reads into amino acid sequences and matches them against reference protein databases.
+
+Kaiju's paired-end mode assumes perfectly synchronized forward and reverse files, it cannot accept a third singleton file in the same command. The workaround for this is to simply run Kaiju twice: once for the paired-end reads, and once for the singletons. Because Kaiju outputs results line-by-line, you can simply cat the two output files together.
+
+```bash
+# Run Kaiju for R1 and R2 reads
+kaiju -t {kaiju_db}/nodes.dmp \
+      -f {kaiju_db}/kaiju_db_*.fmi \
+      -i {input.R1} \
+      -j {input.R2} \
+      -o {kaiju_out}.pe \
+      -a greedy \
+      -z {threads}
+
+# Run kaiju for singleton reads
+kaiju -t {kaiju_db}/nodes.dmp \
+      -f {kaiju_db}/kaiju_db_*.fmi \
+      -i {input.S} \
+      -o {kaiju_out}.se \
+      -a greedy \
+      -z {threads}
+
+# Merge paired and singleton results
+cat {output.kaiju_out}.pe {output.kaiju_out}.se > {output.kaiju_out}
+```
+
+-   `{kaiju_db}` is the directory of your Kaiju database. This directory should contain a `kaiju_db_*.fmi`, `nodes.dmp`, and `names.dmp` file.
+-   `{input.R1}`, `{input.R2}` and `{input.S}` are the host-filtered FASTQ files (R1, R2, and S) from step 2.3.
+-   `{kaiju_out}.pe` and `{kaiju_out}.se` are the output tables.
+-   `{kaiju_db}/kaiju_db_*.fmi`: Replace this with your actual .fmi file depending on your selected database. 
+
+The base Kaiju output is a simplistic table containing only 3 columns:
+
+1. Either C or U, indicating whether the read is classified or unclassified.
+2. Name of the read
+3. NCBI taxon identifier of the assigned taxon
+
+To make it more informative, we can create [Krona](https://github.com/marbl/Krona/wiki){target="_blank"} files with the `kaiju2krona` command. 
+
+```bash
+kaiju2krona -t {kaiju_db}/nodes.dmp \
+            -n {kaiju_db}/names.dmp \
+            -i {output.kaiju_out} \
+            -o {output.kaiju_krona}
+```
+-   `{output.kaiju_out}` is the merged output from the base Kaiju runs.
+-   `{output.kaiju_krona}` is a tab separated krona file that can be used for standard Krona visualization.
+
+Lastly, we can use the `kaiju-addTaxonNames` command to add taxonomic names of various levels to our Kaiju results, and then bin reads based on family, genus and species level. This way, you can easily access reads for your virus of interest. We can use the `scripts/bin_reads.py` script to bin the reads on different taxonomic levels.  
+
+```bash
+# Add superkingdom, phylum, class, order, family, genus, species
+kaiju-addTaxonNames -t {kaiju_db}/nodes.dmp \
+                    -n {kaiju_db}/names.dmp \
+                    -i {output.kaiju_out} \
+                    -o {output.kaiju_names} \
+                    -r superkingdom,phylum,class,order,family,genus,species
+                    
+# Bin reads on family, genus and species level
+python scripts/bin_reads.py \
+  {output.kaiju_names} \
+  {input.R1} \
+  {input.R2} \
+  {output_bin.dir} \
+  {input.S}
+```
+
+-   `{output.kaiju_out}` is the merged output from the base Kaiju runs.
+-   `{output.kaiju_names}` is the Kaiju output with extra columns for different taxonomic levels.
+-   `{output_bin}.dir` is the directory where `family`, `genus`, `species` subdirs are created with their corresponding FASTA files.
 
 ::: callout-note
 We can now move on to the final steps where we will create various files needed for downstream analysis.

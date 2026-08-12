@@ -71,7 +71,10 @@ singularity exec \
     -n {name} \
     -r {reads} \
     --ref-genome {reference} \
-    --diamond-db {database} \
+    --diamond-db {diamond_database} \
+    # Running kaiju is OPTIONAL!
+    # Omit --kaiju-db argument if you want to skip running Kaiju
+    --kaiju-db {kaiju_database} \
     -t {threads}
 ```
 
@@ -79,7 +82,8 @@ singularity exec \
 -   `{project.folder}`: The project folder where you run your workflow and store results.
 -   `{reads}`: The folder that contains your raw .fastq.gz files. Raw read files must adhere to the naming scheme as described [here](https://help.basespace.illumina.com/files-used-by-basespace/fastq-files#naming){target="_blank"}.
 -   `{reference}`: Absolute path pointing to your reference genome (.fna, .fasta, .fa).
--   `{database}`: Absolute path pointing to your diamond database (.dmnd).
+-   `{diamond_database}`: Absolute path pointing to your diamond database (.dmnd).
+-   `{kaiju_database}`: Absolute path pointing to your Kaiju database directory. Must contain a `kaiju_db_*.fmi`, `nodes.dmp`, and `names.dmp` file.
 
 ::: callout-important
 **The `--bind` arguments are needed to explicitly tell Singularity to mount the necessary host directories into the container.** The part before the colon is the path on the host machine that you want to make available. The path after the colon is the path inside the container where the host directory should be mounted.

@@ -27,3 +27,5 @@ The pipeline performs the following steps:
     * Extract contigs for annotated, unannotated and viral contigs.
     * Map the quality-filtered and host-filtered reads back to the assembled contigs to quantify the abundance of different contigs in each sample.
     * Extract and count mapped reads for each annotation file.
+
+5. **Optional: Taxonomic read classification with [Kaiju](https://github.com/bioinformatics-centre/kaiju)**
